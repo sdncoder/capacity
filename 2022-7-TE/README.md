@@ -10,7 +10,7 @@ Backbone2 are not included.
 
 | Element | Style |
 |---|---|
-| Backbone1 sites (13) | White nodes, dark outline, unlabelled |
+| Backbone1 sites (13) | White nodes, dark outline, labelled with the first 2 letters of the POP code |
 | Backbone1 links (24) | Straight lines, labelled with estimated one-way latency |
 
 Every run checks that each line clears every node it doesn't terminate on
@@ -29,6 +29,7 @@ excluded.
 
 - `BACKBONE_POS`: schematic positions of the Backbone1 sites
 - `CLOUDS`: optional cloud on-ramps (homing sites, position, coordinates); none are defined
+- `node_label()`: node label rule (first 2 letters of the POP code); note DRY and DRT both show as DR
 - `LABEL_POS`: per-link latency label positions
 - `ROUTE_FACTOR`, `FIBER_US_PER_KM`: latency model
 

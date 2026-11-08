@@ -16,7 +16,8 @@ site locations listed on the "Backbone1" sheet:
   - Propagation only: excludes equipment, queueing and serialization delay
 
 Styling
-  - Backbone1 nodes : white, dark outline, no labels
+  - Backbone1 nodes : white, dark outline, labelled with the first 2 letters
+                      of the POP code
   - Clouds (if any) : cloud shape, labelled
   - All links       : straight lines, drawn beneath the nodes
   - All links       : labelled with estimated latency (ms)
@@ -211,6 +212,11 @@ LABEL_POS = {
 }
 
 
+def node_label(n):
+    """Node label: first 2 letters of the POP code."""
+    return n[:2]
+
+
 def fmt_ms(ms):
     return f"{ms:.2f} ms" if ms < 1 else f"{ms:.1f} ms"
 
@@ -228,9 +234,11 @@ def draw(G, pos, out):
     nx.draw_networkx_edges(G, pos, edgelist=list(G.edges()), ax=ax,
                            edge_color="#1f1f1f", width=2.2, arrows=False)
 
-    nx.draw_networkx_nodes(G, pos, nodelist=bb, ax=ax, node_size=520,
+    nx.draw_networkx_nodes(G, pos, nodelist=bb, ax=ax, node_size=950,
                            node_color="white", edgecolors="#1f1f1f",
                            linewidths=2.0)
+    nx.draw_networkx_labels(G, pos, labels={n: node_label(n) for n in bb}, ax=ax,
+                            font_size=11, font_weight="bold", font_color="#1f1f1f")
 
     # Clouds: rounded box with the cloud name
     for n in clouds:
@@ -242,7 +250,7 @@ def draw(G, pos, out):
         ax.text(x, y, n, ha="center", va="center", fontsize=12,
                 fontweight="bold", color="#1f1f1f", zorder=5)
 
-    # Latency labels on every link (no backbone node labels)
+    # Latency labels on every link
     for u, v in G.edges():
         ms = G.edges[u, v].get("latency_ms")
         if ms is None:
@@ -298,6 +306,14 @@ def main():
     rows = sorted(G.edges(data=True), key=lambda e: -e[2].get("latency_ms", 0))
     for u, v, d in rows:
         print(f"  {u:>8} - {v:<8} {d['km']:7.0f} km  {d['latency_ms']:6.2f} ms")
+
+    seen = {}
+    for n in bb:
+        seen.setdefault(node_label(n), []).append(n)
+    print("Node labels:", ", ".join(f"{n}={node_label(n)}" for n in sorted(bb)))
+    clash = {k: v for k, v in seen.items() if len(v) > 1}
+    if clash:
+        print("Duplicate labels:", "; ".join(f"{k} = {', '.join(v)}" for k, v in clash.items()))
 
     pos = layout(G)
     bad = check_visibility(G, pos)
