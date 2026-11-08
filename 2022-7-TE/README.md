@@ -23,8 +23,7 @@ latency_ms = great_circle_km × 1.3 (route factor) × 4.9 µs/km (fiber) / 1000
 ```
 
 Fiber propagation only; equipment, queueing and serialization delay are
-excluded. AWS East is placed at AWS us-east-1 (Ashburn, VA) for the estimate:
-SEC1–AWS East is about 2.2 ms and MIA–AWS East about 9.5 ms.
+excluded.
 
 ## Editing
 
