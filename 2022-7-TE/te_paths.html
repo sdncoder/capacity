@@ -1,0 +1,426 @@
+<title>2022-7 TE Path Planner</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: control strip on top, backbone map left, A/B path readout right; stacks on phones */
+:root {
+  --bg: #f3f5f7;
+  --panel: #ffffff;
+  --ink: #17202a;
+  --muted: #5b6875;
+  --rule: #d7dde3;
+  --link: #b9c2cb;
+  --path-a: #1d66c9;
+  --path-b: #c9650f;
+  --ok: #1d7a46;
+  --warn: #b3261e;
+  --ok-bg: #e2f2e8;
+  --warn-bg: #fbe6e4;
+  --node: #ffffff;
+  --font-display: "Barlow Semi Condensed", "Arial Narrow", system-ui, sans-serif;
+  --font-body: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-data: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #11161c; --panel: #19212a; --ink: #e6ebf0; --muted: #97a3af; --rule: #2c3743;
+    --link: #3d4a57; --path-a: #5b9cf0; --path-b: #f0954a; --ok: #6cd19a; --warn: #f2867e;
+    --ok-bg: #173327; --warn-bg: #3a1d1b; --node: #19212a; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #11161c; --panel: #19212a; --ink: #e6ebf0; --muted: #97a3af; --rule: #2c3743;
+  --link: #3d4a57; --path-a: #5b9cf0; --path-b: #f0954a; --ok: #6cd19a; --warn: #f2867e;
+  --ok-bg: #173327; --warn-bg: #3a1d1b; --node: #19212a; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: 15px; line-height: 1.5;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 20px 32px;
+}
+.wrap { max-width: 1280px; margin: 0 auto; display: grid; gap: 16px; }
+header { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 6px 24px; }
+h1 { font-family: var(--font-display); font-weight: 700; font-size: 1.9rem; letter-spacing: 0.01em; margin: 0; text-wrap: balance; }
+h1 span { color: var(--muted); font-weight: 500; }
+.sub { color: var(--muted); margin: 0; max-width: 70ch; }
+
+.controls {
+  display: flex; flex-wrap: wrap; gap: 12px 20px; align-items: end;
+  background: var(--panel); border: 1px solid var(--rule); border-radius: 10px; padding: 14px 16px;
+}
+.field { display: grid; gap: 4px; min-width: 0; }
+.field label, .eyebrow {
+  font-family: var(--font-display); font-weight: 600; font-size: 0.78rem; letter-spacing: 0.08em;
+  text-transform: uppercase; color: var(--muted);
+}
+select, input[type="number"] {
+  font: 500 0.95rem var(--font-data); color: var(--ink); background: var(--bg);
+  border: 1px solid var(--rule); border-radius: 6px; padding: 7px 10px; min-width: 0;
+}
+select { min-width: 13rem; max-width: 100%; }
+input[type="number"] { width: 6.5rem; }
+.end-tag { display: inline-block; width: 1.5em; text-align: center; border-radius: 4px; color: #fff; font-weight: 700; margin-right: 4px; }
+.end-tag.a { background: var(--ink); }
+.end-tag.z { background: var(--ink); }
+button {
+  font: 600 0.9rem var(--font-body); color: var(--ink); background: var(--bg);
+  border: 1px solid var(--rule); border-radius: 6px; padding: 7px 12px; cursor: pointer;
+}
+button:hover { border-color: var(--muted); }
+:focus-visible { outline: 2px solid var(--path-a); outline-offset: 2px; }
+.check { display: flex; align-items: center; gap: 8px; padding-bottom: 7px; }
+.check label { font-size: 0.92rem; }
+
+.main { display: grid; grid-template-columns: minmax(0, 1.7fr) minmax(0, 1fr); gap: 16px; align-items: start; }
+@media (max-width: 900px) { .main { grid-template-columns: minmax(0, 1fr); } }
+
+.map { background: var(--panel); border: 1px solid var(--rule); border-radius: 10px; padding: 10px; min-width: 0; }
+.map-scroll { overflow-x: auto; }
+svg { display: block; width: 100%; height: auto; min-width: 520px; }
+.hint { color: var(--muted); font-size: 0.85rem; margin: 6px 4px 0; }
+.ln { stroke: var(--link); stroke-width: 2; stroke-linecap: round; fill: none; }
+.ln.a { stroke: var(--path-a); stroke-width: 6; }
+.ln.b { stroke: var(--path-b); stroke-width: 6; }
+.nd circle { fill: var(--node); stroke: var(--ink); stroke-width: 2; }
+.nd text { font: 700 13px var(--font-display); fill: var(--ink); text-anchor: middle; dominant-baseline: central; pointer-events: none; }
+.nd { cursor: pointer; }
+.nd:hover circle { stroke-width: 3.5; }
+.nd.end circle { stroke-width: 4; }
+.endlbl { font: 700 12px var(--font-display); fill: var(--ink); text-anchor: middle; letter-spacing: 0.06em; }
+.ms rect { fill: var(--panel); stroke-width: 1.2; }
+.ms text { font: 500 11px var(--font-data); fill: var(--ink); text-anchor: middle; dominant-baseline: central; }
+
+.readout { display: grid; gap: 12px; min-width: 0; }
+.card { background: var(--panel); border: 1px solid var(--rule); border-radius: 10px; padding: 14px 16px; min-width: 0; }
+.verdict { display: grid; gap: 8px; }
+.pill {
+  justify-self: start; font: 700 0.8rem var(--font-display); letter-spacing: 0.08em; text-transform: uppercase;
+  padding: 3px 10px; border-radius: 999px;
+}
+.pill.ok { color: var(--ok); background: var(--ok-bg); }
+.pill.bad { color: var(--warn); background: var(--warn-bg); }
+.skew { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; }
+.skew b { font: 600 2rem var(--font-data); font-variant-numeric: tabular-nums; }
+.skew span { color: var(--muted); }
+.bar { position: relative; height: 8px; background: var(--bg); border-radius: 4px; overflow: hidden; }
+.bar i { position: absolute; inset: 0 auto 0 0; background: var(--ok); border-radius: 4px; }
+.bar i.bad { background: var(--warn); }
+
+.leg { display: grid; gap: 6px; border-left: 6px solid var(--path-a); padding-left: 12px; }
+.leg.b { border-left-color: var(--path-b); }
+.leg-head { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+.leg-head h2 { font: 700 1.15rem var(--font-display); margin: 0; letter-spacing: 0.02em; }
+.leg-head .t { font: 600 1.1rem var(--font-data); font-variant-numeric: tabular-nums; }
+.hops { display: flex; flex-wrap: wrap; gap: 4px; align-items: center; font: 500 0.88rem var(--font-data); }
+.hops .arrow { color: var(--muted); }
+.hop { padding: 1px 6px; border: 1px solid var(--rule); border-radius: 4px; }
+.meta { color: var(--muted); font-size: 0.85rem; margin: 0; }
+.note { font-size: 0.88rem; color: var(--muted); margin: 0; }
+.note strong { color: var(--ink); font-weight: 600; }
+
+.alts-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+th { text-align: left; font: 600 0.72rem var(--font-display); letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); padding: 4px 6px; border-bottom: 1px solid var(--rule); }
+td { padding: 5px 6px; border-bottom: 1px solid var(--rule); font-family: var(--font-data); font-variant-numeric: tabular-nums; vertical-align: top; }
+td.num, th.num { text-align: right; }
+tr.sel td { background: var(--bg); font-weight: 600; }
+tr.pick { cursor: pointer; }
+tr.pick:hover td { background: var(--bg); }
+.foot { color: var(--muted); font-size: 0.8rem; margin: 0; max-width: 90ch; }
+@media (prefers-reduced-motion: no-preference) { .ln { transition: stroke 0.15s, stroke-width 0.15s; } }
+</style>
+
+<div class="wrap">
+  <header>
+    <h1>2022-7 TE Path Planner <span>· Backbone1</span></h1>
+    <p class="sub">Pick an A-end and Z-end to see two diverse traffic-engineering paths for an ST 2022-7 video flow. Path A and path B share no POP or link between the ends.</p>
+  </header>
+
+  <section class="controls" aria-label="Path settings">
+    <div class="field">
+      <label for="sel-a">A-end POP</label>
+      <select id="sel-a"></select>
+    </div>
+    <button id="swap" type="button" title="Swap A-end and Z-end">Swap ⇄</button>
+    <div class="field">
+      <label for="sel-z">Z-end POP</label>
+      <select id="sel-z"></select>
+    </div>
+    <div class="field">
+      <label for="skew">Skew budget (ms)</label>
+      <input id="skew" type="number" min="0" step="1" value="10">
+    </div>
+    <div class="check">
+      <input id="metro" type="checkbox">
+      <label for="metro">Treat POPs within 25 km as one site</label>
+    </div>
+  </section>
+
+  <div class="main">
+    <section class="map" aria-label="Backbone1 map">
+      <div class="map-scroll"><svg id="svg" role="img" aria-label="Backbone1 map with path A and path B"></svg></div>
+      <p class="hint" id="hint">Click a POP to set the A-end, then click another to set the Z-end.</p>
+    </section>
+
+    <section class="readout" aria-live="polite">
+      <div class="card verdict" id="verdict"></div>
+      <div class="card leg" id="leg-a"></div>
+      <div class="card leg b" id="leg-b"></div>
+      <div class="card">
+        <p class="eyebrow" style="margin:0 0 6px">Other diverse pairs</p>
+        <div class="alts-wrap"><table id="alts"></table></div>
+      </div>
+    </section>
+  </div>
+
+  <p class="foot" id="foot"></p>
+</div>
+
+<script>
+const DATA = {"nodes": [{"id": "SNJ", "label": "SN", "x": 0.0, "y": 6.0, "loc": "San Jose", "lat": 37.3382, "lon": -121.8863}, {"id": "LA", "label": "LA", "x": 0.0, "y": 2.0, "loc": "Los Angeles", "lat": 34.0522, "lon": -118.2437}, {"id": "DEN", "label": "DE", "x": 4.0, "y": 7.0, "loc": "Denver", "lat": 39.7392, "lon": -104.9903}, {"id": "DRY", "label": "DR", "x": 4.0, "y": 4.0, "loc": "Dry Creek, South Denver", "lat": 39.58, "lon": -104.87}, {"id": "CHI", "label": "CH", "x": 8.0, "y": 8.0, "loc": "Chicago", "lat": 41.8781, "lon": -87.6298}, {"id": "HAL1", "label": "HA", "x": 12.0, "y": 9.5, "loc": "Halsey NJ", "lat": 40.7357, "lon": -74.1724}, {"id": "DAL", "label": "DA", "x": 7.0, "y": 2.0, "loc": "Dallas", "lat": 32.7767, "lon": -96.797}, {"id": "HOU", "label": "HO", "x": 8.0, "y": 0.0, "loc": "Houston", "lat": 29.7604, "lon": -95.3698}, {"id": "SEC1", "label": "SE", "x": 15.0, "y": 8.5, "loc": "Secaucus NJ", "lat": 40.7895, "lon": -74.0565}, {"id": "ATL", "label": "AT", "x": 11.0, "y": 1.5, "loc": "Atlanta", "lat": 33.749, "lon": -84.388}, {"id": "DRT", "label": "DR", "x": 11.0, "y": 5.5, "loc": "Digital Realty, VA", "lat": 39.03, "lon": -77.47}, {"id": "ASH", "label": "AS", "x": 14.0, "y": 4.5, "loc": "Ashburn, VA", "lat": 39.0438, "lon": -77.4874}, {"id": "MIA", "label": "MI", "x": 14.0, "y": -0.5, "loc": "Miami", "lat": 25.7617, "lon": -80.1918}], "links": [{"a": "SNJ", "b": "LA", "ms": 3.1311911098206497, "km": 491.6}, {"a": "SNJ", "b": "DEN", "ms": 9.499185795893633, "km": 1491.2}, {"a": "SNJ", "b": "DRY", "ms": 9.555634561657184, "km": 1500.1}, {"a": "LA", "b": "HOU", "ms": 14.053901860646421, "km": 2206.3}, {"a": "LA", "b": "DEN", "ms": 8.50724013697294, "km": 1335.5}, {"a": "DEN", "b": "DRY", "ms": 0.130455891334297, "km": 20.5}, {"a": "DEN", "b": "CHI", "ms": 9.412974068644429, "km": 1477.7}, {"a": "DRY", "b": "HAL1", "ms": 16.553322224112794, "km": 2598.6}, {"a": "DRY", "b": "DAL", "ms": 6.666928154329632, "km": 1046.6}, {"a": "CHI", "b": "DAL", "ms": 8.248865118593928, "km": 1295.0}, {"a": "CHI", "b": "SEC1", "ms": 7.2523653384257365, "km": 1138.5}, {"a": "CHI", "b": "ASH", "ms": 5.818446664564938, "km": 913.4}, {"a": "CHI", "b": "ATL", "ms": 6.035617305877635, "km": 947.5}, {"a": "HAL1", "b": "SEC1", "ms": 0.07292744972378279, "km": 11.4}, {"a": "HAL1", "b": "DRT", "ms": 2.1612599369595173, "km": 339.3}, {"a": "DAL", "b": "HOU", "ms": 2.3045128944167, "km": 361.8}, {"a": "HOU", "b": "ATL", "ms": 7.187039487672552, "km": 1128.3}, {"a": "HOU", "b": "MIA", "ms": 9.916780959402312, "km": 1556.8}, {"a": "SEC1", "b": "DRT", "ms": 2.2341670213851534, "km": 350.7}, {"a": "ATL", "b": "DRT", "ms": 5.432882936168605, "km": 852.9}, {"a": "ATL", "b": "ASH", "ms": 5.432179515019397, "km": 852.8}, {"a": "ATL", "b": "MIA", "ms": 6.216374861316501, "km": 975.9}, {"a": "DRT", "b": "ASH", "ms": 0.013681657924985942, "km": 2.1}, {"a": "ASH", "b": "MIA", "ms": 9.544504255468318, "km": 1498.4}], "skew_ms": 10.0, "route_factor": 1.3, "fiber": 4.9};
+
+/* ---- engine: same rules as te_paths.py ---- */
+function gcKm(p, q) {
+  const r = Math.PI / 180, [la1, lo1] = [p[0] * r, p[1] * r], [la2, lo2] = [q[0] * r, q[1] * r];
+  const h = Math.sin((la2 - la1) / 2) ** 2 + Math.cos(la1) * Math.cos(la2) * Math.sin((lo2 - lo1) / 2) ** 2;
+  return 2 * 6371 * Math.asin(Math.sqrt(h));
+}
+function buildEngine(data) {
+  const adj = {}, ms = {}, nodes = {};
+  data.nodes.forEach(n => { adj[n.id] = []; nodes[n.id] = n; });
+  data.links.forEach(l => {
+    adj[l.a].push(l.b); adj[l.b].push(l.a);
+    ms[l.a + "|" + l.b] = ms[l.b + "|" + l.a] = l.ms;
+  });
+  function groups(km) {
+    const g = {}; data.nodes.forEach(n => g[n.id] = n.id);
+    const root = n => { while (g[n] !== n) n = g[n]; return n; };
+    if (km > 0) {
+      for (let i = 0; i < data.nodes.length; i++) for (let j = i + 1; j < data.nodes.length; j++) {
+        const u = data.nodes[i], v = data.nodes[j];
+        if (gcKm([u.lat, u.lon], [v.lat, v.lon]) <= km) g[root(u.id)] = root(v.id);
+      }
+    }
+    const out = {}; data.nodes.forEach(n => out[n.id] = root(n.id)); return out;
+  }
+  function simplePaths(a, z) {
+    const out = [], stack = [a], seen = new Set([a]);
+    (function dfs(u) {
+      for (const v of adj[u]) {
+        if (seen.has(v)) continue;
+        stack.push(v);
+        if (v === z) out.push(stack.slice());
+        else { seen.add(v); dfs(v); seen.delete(v); }
+        stack.pop();
+      }
+    })(a);
+    return out;
+  }
+  const pathMs = p => p.slice(1).reduce((s, v, i) => s + ms[p[i] + "|" + v], 0);
+  function lt(x, y) { for (let i = 0; i < x.length; i++) { if (x[i] < y[i]) return true; if (x[i] > y[i]) return false; } return false; }
+
+  function diversePair(a, z, skewMs, metroKm) {
+    const grp = groups(metroKm), ends = new Set([grp[a], grp[z]]);
+    const paths = simplePaths(a, z).map(p => {
+      const inner = p.slice(1, -1);
+      return { p, ms: pathMs(p), inner: new Set(inner),
+               risk: new Set(inner.map(n => grp[n]).filter(g => !ends.has(g))) };
+    }).sort((x, y) => x.ms - y.ms);
+    const disjoint = (s, t) => { for (const v of s) if (t.has(v)) return false; return true; };
+    let best = null, fallback = null, fastest = null, nPairs = 0;
+    const pairs = [];
+    for (let i = 0; i < paths.length; i++) for (let j = i + 1; j < paths.length; j++) {
+      const P = paths[i], Q = paths[j];
+      if (!disjoint(P.inner, Q.inner) || !disjoint(P.risk, Q.risk)) continue;
+      if (P.p.length === 2 && Q.p.length === 2) continue;
+      nPairs++;
+      const r3 = v => Math.round(v * 1000) / 1000;
+      const skew = Math.abs(P.ms - Q.ms), hops = P.p.length + Q.p.length;
+      const key = [r3(Math.max(P.ms, Q.ms)), r3(P.ms + Q.ms), hops, skew];
+      const rec = { key, P, Q, skew, ok: skew <= skewMs + 1e-9 };
+      pairs.push(rec);
+      if (rec.ok && (!best || lt(key, best.key))) best = rec;
+      if (!fastest || lt(key, fastest.key)) fastest = rec;
+      const fk = [r3(skew), r3(Math.max(P.ms, Q.ms)), hops];
+      if (!fallback || lt(fk, fallback.fk)) fallback = { ...rec, fk };
+    }
+    const pick = best || fallback;
+    const orient = r => r.P.ms <= r.Q.ms ? [r.P, r.Q] : [r.Q, r.P];
+    const res = { a, z, skewBudget: skewMs, metroKm, simplePaths: paths.length, disjointPairs: nPairs,
+                  shortest: paths[0] || null, pairs, pick, fastest };
+    if (!pick) return { ...res, status: "NO DIVERSE PAIR" };
+    const [A, B] = orient(pick);
+    return { ...res, A, B, skew: B.ms - A.ms, status: best ? "OK" : "OVER SKEW BUDGET", orient };
+  }
+  return { diversePair, nodes };
+}
+/* ---- end engine ---- */
+
+(function ui() {
+  if (!DATA) return;
+  const eng = buildEngine(DATA);
+  const $ = id => document.getElementById(id);
+  const fmt = v => v < 1 ? v.toFixed(2) : v.toFixed(1);
+  const fmt2 = v => v.toFixed(2);
+  const byLabel = [...DATA.nodes].sort((x, y) => x.id.localeCompare(y.id));
+  const state = { a: "SEC1", z: "LA", skew: DATA.skew_ms, metro: false, choice: null, next: "a" };
+
+  ["sel-a", "sel-z"].forEach(id => {
+    $(id).innerHTML = byLabel.map(n =>
+      `<option value="${n.id}">${n.label} · ${n.id} · ${n.loc}</option>`).join("");
+  });
+  $("skew").value = state.skew;
+
+  // map geometry: layout units -> SVG pixels (y up in the model, down in SVG)
+  const S = 64, PAD = 46;
+  const xs = DATA.nodes.map(n => n.x), ys = DATA.nodes.map(n => n.y);
+  const minX = Math.min(...xs), maxX = Math.max(...xs), minY = Math.min(...ys), maxY = Math.max(...ys);
+  const W = (maxX - minX) * S + PAD * 2, H = (maxY - minY) * S + PAD * 2 + 18;
+  const P = n => [(n.x - minX) * S + PAD, (maxY - n.y) * S + PAD];
+  const svg = $("svg");
+  svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
+  const NS = "http://www.w3.org/2000/svg";
+  const el = (tag, attrs, parent) => { const e = document.createElementNS(NS, tag);
+    for (const k in attrs) e.setAttribute(k, attrs[k]); (parent || svg).appendChild(e); return e; };
+
+  const gLinks = el("g", {}), gLabels = el("g", {}), gNodes = el("g", {});
+  const linkEls = {};
+  DATA.links.forEach(l => {
+    const [x1, y1] = P(eng.nodes[l.a]), [x2, y2] = P(eng.nodes[l.b]);
+    const ln = el("line", { x1, y1, x2, y2, class: "ln" }, gLinks);
+    linkEls[l.a + "|" + l.b] = linkEls[l.b + "|" + l.a] = { ln, l, x1, y1, x2, y2 };
+  });
+  const nodeEls = {};
+  DATA.nodes.forEach(n => {
+    const [x, y] = P(n);
+    const g = el("g", { class: "nd", tabindex: "0", role: "button",
+                        "aria-label": `${n.id}, ${n.loc}` }, gNodes);
+    el("circle", { cx: x, cy: y, r: 19 }, g);
+    const t = el("text", { x, y }, g); t.textContent = n.label;
+    const tt = el("title", {}, g); tt.textContent = `${n.id} · ${n.loc}`;
+    const pick = () => clickNode(n.id);
+    g.addEventListener("click", pick);
+    g.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); pick(); } });
+    nodeEls[n.id] = { g, x, y };
+  });
+
+  function clickNode(id) {
+    if (state.next === "a") {
+      state.a = id; state.next = "z";
+      if (state.z === id) state.z = null;
+    } else {
+      if (id === state.a) return;
+      state.z = id; state.next = "a";
+    }
+    state.choice = null; render();
+  }
+  $("sel-a").addEventListener("change", e => { state.a = e.target.value; state.choice = null; state.next = "a"; render(); });
+  $("sel-z").addEventListener("change", e => { state.z = e.target.value; state.choice = null; state.next = "a"; render(); });
+  $("swap").addEventListener("click", () => { if (state.z) { [state.a, state.z] = [state.z, state.a]; state.choice = null; render(); } });
+  $("skew").addEventListener("input", e => { const v = parseFloat(e.target.value); if (!isNaN(v) && v >= 0) { state.skew = v; state.choice = null; render(); } });
+  $("metro").addEventListener("change", e => { state.metro = e.target.checked; state.choice = null; render(); });
+
+  function hops(p) {
+    return p.map(id => `<span class="hop" title="${eng.nodes[id].loc}">${id}</span>`).join('<span class="arrow">→</span>');
+  }
+  function legHTML(name, cls, leg) {
+    if (!leg) return `<div class="leg-head"><h2>${name}</h2></div><p class="meta">No path.</p>`;
+    return `<div class="leg-head"><h2>${name}</h2><span class="t">${fmt2(leg.ms)} ms</span></div>
+      <div class="hops">${hops(leg.p)}</div>
+      <p class="meta">${leg.p.length - 1} hop${leg.p.length === 2 ? "" : "s"} · one-way propagation estimate</p>`;
+  }
+
+  function render() {
+    $("sel-a").value = state.a;
+    if (state.z) $("sel-z").value = state.z;
+    Object.values(linkEls).forEach(o => o.ln.setAttribute("class", "ln"));
+    gLabels.innerHTML = "";
+    Object.entries(nodeEls).forEach(([id, o]) => o.g.setAttribute("class", "nd" + (id === state.a || id === state.z ? " end" : "")));
+    svg.querySelectorAll(".endlbl").forEach(e => e.remove());
+
+    const endLbl = (id, txt) => { const o = nodeEls[id]; const t = el("text", { x: o.x, y: o.y + 34, class: "endlbl" }); t.textContent = txt; };
+    endLbl(state.a, "A-END");
+    if (!state.z) {
+      $("hint").textContent = `A-end set to ${state.a}. Click another POP to set the Z-end.`;
+      $("verdict").innerHTML = `<p class="note">Choose a Z-end to plan paths from <strong>${state.a}</strong>.</p>`;
+      $("leg-a").innerHTML = legHTML("Path A", "a", null); $("leg-b").innerHTML = legHTML("Path B", "b", null);
+      $("alts").innerHTML = ""; return;
+    }
+    endLbl(state.z, "Z-END");
+    $("hint").textContent = "Click a POP to start a new A-end, then another for the Z-end.";
+
+    const r = eng.diversePair(state.a, state.z, state.skew, state.metro ? 25 : 0);
+    let A = r.A, B = r.B, skew = r.skew, status = r.status;
+    if (state.choice != null && r.pairs.length) {
+      const rows = topPairs(r);
+      const c = rows[state.choice];
+      if (c) { [A, B] = r.orient(c); skew = B.ms - A.ms; status = c.ok ? "OK" : "OVER SKEW BUDGET"; }
+    }
+
+    const draw = (leg, cls) => {
+      if (!leg) return;
+      leg.p.slice(1).forEach((v, i) => {
+        const o = linkEls[leg.p[i] + "|" + v]; o.ln.setAttribute("class", "ln " + cls);
+        gLinks.appendChild(o.ln);
+        const mx = (o.x1 + o.x2) / 2, my = (o.y1 + o.y2) / 2, txt = fmt(o.l.ms) + " ms";
+        const g = el("g", { class: "ms" }, gLabels), w = txt.length * 6.8 + 10;
+        el("rect", { x: mx - w / 2, y: my - 9, width: w, height: 18, rx: 4,
+                     style: `stroke: var(--path-${cls})` }, g);
+        const t = el("text", { x: mx, y: my }, g); t.textContent = txt;
+      });
+    };
+    draw(A, "a"); draw(B, "b");
+
+    if (!A) {
+      $("verdict").innerHTML = `<span class="pill bad">No diverse pair</span>
+        <p class="note">Every route from ${r.a} to ${r.z} shares a POP or link with every other route${state.metro ? " (or the same metro site)" : ""}.</p>`;
+      $("leg-a").innerHTML = legHTML("Path A", "a", null); $("leg-b").innerHTML = legHTML("Path B", "b", null);
+      $("alts").innerHTML = ""; return;
+    }
+    const ok = status === "OK";
+    const pct = Math.min(100, state.skew > 0 ? skew / state.skew * 100 : (skew > 0 ? 100 : 0));
+    let fastNote = "";
+    if (r.fastest && r.fastest !== r.pick && state.choice == null) {
+      const [fa, fb] = r.orient(r.fastest);
+      fastNote = `<p class="note">The fastest diverse pair is <strong>${fmt2(fa.ms)} / ${fmt2(fb.ms)} ms</strong>, but its skew of ${fmt2(fb.ms - fa.ms)} ms is over budget.</p>`;
+    }
+    $("verdict").innerHTML = `
+      <span class="pill ${ok ? "ok" : "bad"}">${ok ? "Within skew budget" : "Over skew budget"}</span>
+      <div class="skew"><b>${fmt2(skew)} ms</b><span>A/B skew · budget ${state.skew} ms</span></div>
+      <div class="bar" aria-hidden="true"><i class="${ok ? "" : "bad"}" style="width:${pct}%"></i></div>
+      ${ok ? "" : `<p class="note">No disjoint pair fits ${state.skew} ms, so this is the lowest-skew pair. Raise the receivers' buffer or add a route.</p>`}
+      ${fastNote}
+      <p class="meta">${r.simplePaths} routes · ${r.disjointPairs} diverse pairs · single shortest route ${fmt2(r.shortest.ms)} ms</p>`;
+    $("leg-a").innerHTML = legHTML("Path A", "a", A);
+    $("leg-b").innerHTML = legHTML("Path B", "b", B);
+
+    const rows = topPairs(r);
+    const curA = A.p.join(), curB = B.p.join();
+    $("alts").innerHTML = `<thead><tr><th>#</th><th class="num">A ms</th><th class="num">B ms</th><th class="num">Skew</th><th>Path B via</th></tr></thead><tbody>` +
+      rows.map((c, i) => {
+        const [x, y] = r.orient(c), sel = x.p.join() === curA && y.p.join() === curB;
+        return `<tr class="pick ${sel ? "sel" : ""}" data-i="${i}" tabindex="0" title="Show this pair">
+          <td>${i + 1}</td><td class="num">${fmt2(x.ms)}</td><td class="num">${fmt2(y.ms)}</td>
+          <td class="num" style="color:var(${c.ok ? "--ok" : "--warn"})">${fmt2(c.skew)}</td>
+          <td>${y.p.slice(1, -1).join(" · ") || "direct"}</td></tr>`;
+      }).join("") + "</tbody>";
+    $("alts").querySelectorAll("tr.pick").forEach(tr => {
+      const go = () => { state.choice = +tr.dataset.i; render(); };
+      tr.addEventListener("click", go);
+      tr.addEventListener("keydown", e => { if (e.key === "Enter") go(); });
+    });
+  }
+  function topPairs(r) {
+    // in-budget pairs first, then by worst-path latency
+    return [...r.pairs].sort((x, y) => (y.ok - x.ok) || (x.key[0] - y.key[0]) || (x.key[1] - y.key[1]) || (x.key[2] - y.key[2])).slice(0, 6);
+  }
+
+  $("foot").textContent = `Latency is an estimate: great-circle distance × ${DATA.route_factor} route factor × ${DATA.fiber} µs/km in fiber, one way, propagation only. ` +
+    `Skew is the delay difference between path A and path B that the 2022-7 receivers must buffer. The 25 km option groups nearby POPs (DRT/ASH, HAL1/SEC1, DEN/DRY) so A and B can't both rely on the same metro.`;
+  render();
+})();
+</script>
