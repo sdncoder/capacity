@@ -21,7 +21,8 @@ skew.*
 | `backbone5_model.py` | Backbone1 NetworkX model and map |
 | `backbone5_model.png` | Backbone1 map with per-link latency |
 | `Backbone-Split5.numbers` | Source data (`BackboneSplit` and `Backbone1` sheets) |
-| `output/` | Example PNGs and the all-pairs CSV |
+| `failure-report/` | Double link failure report with summary README |
+| `output/` | Example TE path PNGs and the all-pairs CSV |
 | `images/` | README images |
 
 ## TE paths A and B
@@ -71,6 +72,8 @@ python te_paths.py --html te_paths.html            # rebuild the interactive pla
 
 ## Double link failure analysis
 
+Full write-up: [failure-report/](failure-report/README.md).
+
 `te_failure.py` answers: with every link at 100G and all traffic in TE-LSPs,
 how much traffic can the network carry with no link saturating under any two
 link failures?
@@ -109,13 +112,13 @@ Reroute ignores bandwidth (no CSPF reservation), so this is the load the
 network would see if every LSP took its shortest surviving path.
 
 ```bash
-python te_failure.py                       # report, cases CSV and maps in output/
+python te_failure.py                       # report, cases CSV and maps in failure-report/
 python te_failure.py --policy no-reroute
 ```
 
-![Worst double failure](output/failure_worst_double.png)
+![Worst double failure](failure-report/failure_worst_double.png)
 
-![Worst load per link under any double failure](output/failure_worst_per_link.png)
+![Worst load per link under any double failure](failure-report/failure_worst_per_link.png)
 
 ## Backbone1 model
 

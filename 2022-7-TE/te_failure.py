@@ -210,7 +210,7 @@ def main(argv=None):
     ap.add_argument("--demands", help="CSV with columns A,Z,Gbps (default: 1 flow per POP pair)")
     ap.add_argument("--skew-ms", type=float, default=tp.SKEW_MS)
     ap.add_argument("--metro-km", type=float, default=tp.METRO_KM)
-    ap.add_argument("--out", default=os.path.join(HERE, "output"))
+    ap.add_argument("--out", default=os.path.join(HERE, "failure-report"))
     args = ap.parse_args(argv)
     os.makedirs(args.out, exist_ok=True)
 
