@@ -1,0 +1,69 @@
+2022-7-TE — double link failure analysis
+Links: 24 x 100G   POPs: 13   edge connectivity 3 (no double failure splits the network)
+Traffic: 78 ST 2022-7 flows (one per POP pair, equal size), each as TE-LSP A + TE-LSP B on diverse paths
+Paths: te_paths.py, skew budget 10 ms
+Failure policy: no-reroute (failed leg stays down; stream rides the other leg)
+Cases: 1 normal, 24 single failures, 276 double failures
+
+Highest traffic with no link over 100G
+  Condition                Max per flow  Video total    Carried  Binding link / failure
+  No failure                   3.23 G         252 G      503 G  CHI–DEN with none
+  Any single failure           3.23 G         252 G      503 G  CHI–DEN with none
+  Any double failure           3.23 G         252 G      503 G  CHI–DEN with none
+  (Video total = unique video across all flows; Carried = A + B copies on the backbone.)
+
+Answer: keep each flow at or below 3.23 Gbps per flow (252 G of video, 503 G carried) and no link saturates under any double link failure.
+  Binding case: none down puts CHI–DEN at 100%.
+  Double-failure headroom costs 0% of the no-failure limit (3.23 -> 3.23).
+
+Per-link load at 3.23 Gbps per flow: normal and worst case under any double failure
+  Link           Normal    Worst  Worst when down
+  CHI–DEN        100.0G   100.0G  normal
+  DAL–HOU         83.9G    83.9G  normal
+  DEN–DRY         74.2G    74.2G  normal
+  CHI–SEC1        74.2G    74.2G  normal
+  CHI–DAL         71.0G    71.0G  normal
+  ATL–HOU         71.0G    71.0G  normal
+  ASH–CHI         67.7G    67.7G  normal
+  HOU–LA          61.3G    61.3G  normal
+  ATL–CHI         61.3G    61.3G  normal
+  ASH–DRT         58.1G    58.1G  normal
+  ATL–DRT         54.8G    54.8G  normal
+  DEN–LA          51.6G    51.6G  normal
+  HAL1–SEC1       51.6G    51.6G  normal
+  DRT–HAL1        51.6G    51.6G  normal
+  DRY–HAL1        45.2G    45.2G  normal
+  DAL–DRY         45.2G    45.2G  normal
+  DRY–SNJ         41.9G    41.9G  normal
+  DRT–SEC1        41.9G    41.9G  normal
+  ATL–MIA         41.9G    41.9G  normal
+  DEN–SNJ         38.7G    38.7G  normal
+  ASH–ATL         35.5G    35.5G  normal
+  LA–SNJ          22.6G    22.6G  normal
+  HOU–MIA         22.6G    22.6G  normal
+  ASH–MIA         19.4G    19.4G  normal
+
+Worst double failures (highest peak link)
+  ASH–ATL + ASH–MIA            -> CHI–DEN     100.0G at limit, 0 LSPs rerouted, 1 flows lost both legs
+  ASH–ATL + ATL–DRT            -> CHI–DEN     100.0G at limit, 0 LSPs rerouted, 2 flows lost both legs
+  ASH–ATL + ATL–HOU            -> CHI–DEN     100.0G at limit, 0 LSPs rerouted, 0 flows lost both legs
+  ASH–ATL + DRT–HAL1           -> CHI–DEN     100.0G at limit, 0 LSPs rerouted, 0 flows lost both legs
+  ASH–ATL + DRT–SEC1           -> CHI–DEN     100.0G at limit, 0 LSPs rerouted, 1 flows lost both legs
+  ASH–ATL + DRY–HAL1           -> CHI–DEN     100.0G at limit, 0 LSPs rerouted, 0 flows lost both legs
+  ASH–ATL + DRY–SNJ            -> CHI–DEN     100.0G at limit, 0 LSPs rerouted, 0 flows lost both legs
+  ASH–ATL + HOU–LA             -> CHI–DEN     100.0G at limit, 0 LSPs rerouted, 0 flows lost both legs
+  ASH–ATL + HOU–MIA            -> CHI–DEN     100.0G at limit, 0 LSPs rerouted, 0 flows lost both legs
+  ASH–ATL + LA–SNJ             -> CHI–DEN     100.0G at limit, 0 LSPs rerouted, 0 flows lost both legs
+
+Flows losing both A and B at once: in 174 of 276 double failures
+  (with no reroute these flows stay down for the duration of the failure)
+  CHI–DEN + DRY–HAL1            12 flows: ASH–DEN, ASH–DRY, ASH–SNJ, DEN–DRT, DEN–HAL1, DEN–SEC1 ...
+  ATL–HOU + CHI–DAL             11 flows: ASH–DAL, ASH–HOU, ATL–DAL, CHI–DAL, CHI–HOU, DAL–DRT ...
+  CHI–DEN + HOU–LA              11 flows: ASH–LA, ATL–LA, ATL–SNJ, CHI–LA, DAL–DEN, DEN–HOU ...
+  ATL–DRT + CHI–SEC1            10 flows: ASH–DRT, ASH–HAL1, ASH–SEC1, ATL–HAL1, ATL–SEC1, DAL–HAL1 ...
+  DEN–LA + HOU–LA               10 flows: ASH–LA, ATL–LA, CHI–LA, DAL–LA, DRT–LA, HAL1–LA ...
+  CHI–DAL + DAL–HOU              9 flows: ASH–DAL, ATL–DAL, CHI–DAL, DAL–DEN, DAL–DRT, DAL–DRY ...
+  102 double failures hit no flow on both legs.
+  Single failures that hit both legs of a flow: 0 (A and B are link-disjoint)
+
+Assumptions: estimated propagation latency drives path choice; reroute ignores bandwidth (no CSPF bandwidth reservation), so this is the load the network would see if every LSP takes its shortest surviving path. All links are 100G.

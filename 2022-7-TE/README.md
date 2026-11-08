@@ -16,6 +16,7 @@ skew.*
 |---|---|
 | `te_paths.html` | Interactive A/Z path planner (open in a browser) |
 | `te_paths.py` | Path engine and CLI: one A/Z pair as a PNG, or every pair as a CSV |
+| `te_failure.py` | Double link failure analysis: highest TE-LSP load with no 100G link saturated |
 | `te_paths_template.html` | Page template; `te_paths.py --html` embeds the graph into it |
 | `backbone5_model.py` | Backbone1 NetworkX model and map |
 | `backbone5_model.png` | Backbone1 map with per-link latency |
@@ -67,6 +68,54 @@ python te_paths.py --html te_paths.html            # rebuild the interactive pla
   because the only short route is the direct LA–SNJ link.
 - Short direct links force long equal-skew pairs elsewhere: DAL–HOU uses
   21.5 / 29.4 ms rather than the 2.3 ms direct link.
+
+## Double link failure analysis
+
+`te_failure.py` answers: with every link at 100G and all traffic in TE-LSPs,
+how much traffic can the network carry with no link saturating under any two
+link failures?
+
+- **Traffic**: one ST 2022-7 flow per POP pair (78 flows, equal size), each
+  carried as TE-LSP A and TE-LSP B on the diverse paths `te_paths.py` picks.
+  Use `--demands file.csv` (columns `A,Z,Gbps`) for a real matrix.
+- **Failure behaviour**: an LSP that loses a link re-signals on the
+  lowest-latency surviving path (`--policy reroute`, default). With
+  `--policy no-reroute` the failed leg stays down and the stream rides the
+  other leg.
+- **Sweep**: normal, all 24 single failures and all 276 double failures.
+  Load is linear in traffic, so the limit is 100G divided by the worst
+  per-flow load on any link in any case.
+
+| Condition | Max per flow | Video total | Carried (A + B) | Binding case |
+|---|---:|---:|---:|---|
+| No failure | 3.23 G | 252 G | 503 G | CHI–DEN |
+| Any single failure | 2.27 G | 177 G | 355 G | CHI–DEN with DRY–HAL1 down |
+| **Any double failure** | **1.75 G** | **137 G** | **274 G** | CHI–DEN with DAL–DRY + HOU–LA down |
+
+Findings (reroute policy):
+- **Keep each flow at or below 1.75 Gbps** (137 G of video, 274 G carried
+  with both copies) and no 100G link saturates under any double failure.
+  Surviving double failures costs 46% of the no-failure limit.
+- **CHI–DEN is the bottleneck.** It carries the most load in normal running
+  (54 G at the limit) and is the link that saturates in 8 of the 10 worst
+  double failures, because rerouted west–east LSPs converge on it.
+- **No double failure splits the network** (edge connectivity 3), but in 174
+  of 276 double failures at least one flow loses both A and B at once, a hit
+  until the LSPs re-signal. No single failure hits both legs of any flow.
+- With `--policy no-reroute` failures only remove load, so the limit is the
+  no-failure 3.23 G per flow, at the cost of running unprotected on one leg.
+
+Reroute ignores bandwidth (no CSPF reservation), so this is the load the
+network would see if every LSP took its shortest surviving path.
+
+```bash
+python te_failure.py                       # report, cases CSV and maps in output/
+python te_failure.py --policy no-reroute
+```
+
+![Worst double failure](output/failure_worst_double.png)
+
+![Worst load per link under any double failure](output/failure_worst_per_link.png)
 
 ## Backbone1 model
 
