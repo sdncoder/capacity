@@ -4,11 +4,6 @@ NetworkX model of the Backbone1 core with a traffic-engineering path planner
 for SMPTE ST 2022-7 seamless-protection video. Pick an A-end and Z-end and it
 shows two diverse paths, A and B, with their latency and the A/B skew.
 
-![2022-7 TE Path Planner](images/te_paths_tool.png)
-
-*The interactive planner (`te_paths.html`) with SEC1 → LA selected: path A
-SEC1–CHI–DEN–LA at 25.17 ms, path B SEC1–DRT–ATL–HOU–LA at 28.91 ms, 3.74 ms
-skew.*
 
 ## Contents
 
