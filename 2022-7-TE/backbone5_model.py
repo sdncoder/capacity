@@ -1,8 +1,9 @@
 """
-Backbone5 network model (NetworkX)
+2022-7-TE network model (NetworkX)
 
-Builds the Backbone1 core plus the Edges from the "BackboneSplit"
-sheet of Backbone-Split5.numbers. Backbone2 columns are ignored.
+Builds the Backbone1 core from the "BackboneSplit" sheet of
+Backbone-Split5.numbers, plus an AWS East cloud on-ramp homed to SEC1 and
+MIA. The Edges and Backbone2 columns are ignored.
 
 Each Backbone1 link carries an estimated one-way latency, derived from the
 site locations listed on the "Backbone1" sheet:
@@ -16,9 +17,10 @@ site locations listed on the "Backbone1" sheet:
 
 Styling
   - Backbone1 nodes : white, dark outline, no labels
-  - Edge nodes      : light grey, small, no labels
+  - AWS East        : cloud shape, labelled
   - All links       : straight lines, drawn beneath the nodes
-  - Backbone1 links : labelled with estimated latency (ms)
+  - All links       : labelled with estimated latency (ms)
+  - Every line is checked to clear every node it doesn't terminate on
 
 Usage
   pip install networkx matplotlib numbers-parser
@@ -30,6 +32,7 @@ import sys
 
 import matplotlib.pyplot as plt
 import networkx as nx
+from matplotlib.patches import FancyBboxPatch
 from numbers_parser import Document
 
 SPLIT_SHEET = "BackboneSplit"
@@ -37,14 +40,10 @@ SITE_SHEET = "Backbone1"
 
 # Column positions on the BackboneSplit sheet (0-based)
 BB1_A, BB1_Z, BB1_LINKS, BB1_BW = 0, 1, 2, 3          # Backbone1 block
-ST_A, ST_Z, ST_LINKS, ST_BW = 13, 14, 15, 16          # Edges block
 DATA_START_ROW = 2                                    # rows 0-1 are headers
 
 # Site / Location columns on the Backbone1 sheet
 SITE_COL, LOC_COL = 5, 6
-
-# Hub names on the sheet that are typos for a Backbone1 site
-HUB_ALIASES = {"ASH1": "ASH"}
 
 # Latency model
 ROUTE_FACTOR = 1.3
@@ -90,22 +89,13 @@ BACKBONE_POS = {
     "ATL": (11.0, 1.5), "MIA": (14.0, -0.5),
 }
 
-# Slots for edge nodes, keyed by the (sorted) Backbone1 hubs they home to.
-# Each group sits in open space beside its hubs so no edge line lies on
-# top of a backbone link and no two edge nodes share a position.
-EDGE_SLOTS = {
-    ("HAL1", "SEC1"): [(12.0, 11.0), (12.9, 11.2), (13.8, 11.2), (14.7, 11.0)],
-    ("LA", "SNJ"):    [(-1.4, 2.6), (-1.4, 3.4), (-1.4, 4.2), (-1.4, 5.0)],
-    ("DEN", "DRY"):   [(5.1, 5.3), (5.1, 6.0)],
-    ("DEN", "LA"):    [(1.9, 3.1), (2.5, 2.75), (3.1, 2.4)],
-    ("DAL", "DRY"):   [(5.0, 2.2)],
-    ("DAL", "HOU"):   [(8.7, 0.5), (8.9, 1.0), (9.1, 1.5), (9.3, 2.0)],
-    ("ATL", "MIA"):   [(11.7, -1.0), (12.5, -1.4)],
-    ("ASH", "ATL"):   [(12.2, 3.5)],
-    ("ASH", "MIA"):   [(15.4, 1.8)],
-    ("ASH", "HAL1"):  [(13.0, 6.5)],
-    ("ASH", "SEC1"):  [(16.4, 6.3)],
+# Cloud on-ramps: name -> (homing sites, schematic position, (lat, lon))
+# AWS East is placed at AWS us-east-1 (Ashburn, VA) for the latency estimate.
+CLOUDS = {
+    "AWS East": (("SEC1", "MIA"), (17.6, 4.0), (39.0400, -77.4900)),
 }
+CLOUD_W, CLOUD_H = 1.9, 1.0      # cloud box size in layout units
+NODE_CLEAR = 0.45                # min gap between a line and a node it skips
 
 
 def clean(v):
@@ -119,14 +109,11 @@ def load(path):
     sheets = {s.name: s for s in doc.sheets}
 
     rows = list(sheets[SPLIT_SHEET].tables[0].rows(values_only=True))
-    backbone, edge_rows = [], []
+    backbone = []
     for r in rows[DATA_START_ROW:]:
         a, z = clean(r[BB1_A]), clean(r[BB1_Z])
         if a and z:
             backbone.append((a, z, int(r[BB1_LINKS] or 1), clean(r[BB1_BW])))
-        a, z = clean(r[ST_A]), clean(r[ST_Z])
-        if a and z:
-            edge_rows.append((a, z, int(r[ST_LINKS] or 1), clean(r[ST_BW])))
 
     sites = {}
     for r in list(sheets[SITE_SHEET].tables[0].rows(values_only=True))[1:]:
@@ -134,7 +121,7 @@ def load(path):
         if site and loc:
             sites[site] = LOCATION_FIXES.get(loc, loc)
 
-    return backbone, edge_rows, sites
+    return backbone, sites
 
 
 # ---------------------------------------------------------------- latency
@@ -153,9 +140,9 @@ def latency_ms(km):
 
 # ---------------------------------------------------------------- graph
 
-def build_graph(backbone, edge_rows, sites):
+def build_graph(backbone, sites):
     G = nx.Graph()
-    dupes, offnet, aliased = [], [], []
+    dupes = []
 
     for a, z, links, bw in backbone:
         for n in (a, z):
@@ -167,62 +154,52 @@ def build_graph(backbone, edge_rows, sites):
             continue
         G.add_edge(a, z, role="backbone1", links=links, bw=bw)
 
-    # Estimated latency on each Backbone1 link
+    for name, (hubs, _, coords) in CLOUDS.items():
+        G.add_node(name, role="cloud", coords=coords)
+        for hub in hubs:
+            G.add_edge(hub, name, role="cloud")
+
+    # Estimated latency on every link
     for a, z, d in G.edges(data=True):
         ca, cz = G.nodes[a]["coords"], G.nodes[z]["coords"]
         if ca and cz:
             d["km"] = great_circle_km(ca, cz)
             d["latency_ms"] = latency_ms(d["km"])
 
-    bb_nodes = set(G.nodes)
-    for st, hub, links, bw in edge_rows:
-        if hub in HUB_ALIASES:
-            aliased.append((st, hub, HUB_ALIASES[hub]))
-            hub = HUB_ALIASES[hub]
-        if hub not in bb_nodes:              # hub is on Backbone2 only
-            offnet.append((st, hub))
-            continue
-        G.add_node(st, role="edge")
-        if G.has_edge(st, hub):
-            dupes.append((st, hub))
-            continue
-        G.add_edge(st, hub, role="edge", links=links, bw=bw)
-
-    # An edge node whose every hub is off Backbone1 never got a node; any
-    # partially-homed edge node keeps its Backbone1 links.
-    return G, dupes, offnet, aliased
+    return G, dupes
 
 
 # ---------------------------------------------------------------- layout
 
 def layout(G):
-    bb = [n for n, d in G.nodes(data=True) if d["role"] == "backbone1"]
-    pos = {n: BACKBONE_POS.get(n, (7.0, 4.0)) for n in bb}
-
-    used, unplaced = {}, []
+    pos = {}
     for n, d in G.nodes(data=True):
-        if d["role"] != "edge":
-            continue
-        key = tuple(sorted(G.neighbors(n)))
-        slots = EDGE_SLOTS.get(key, [])
-        i = used.get(key, 0)
-        if i < len(slots):
-            pos[n] = slots[i]
-            used[key] = i + 1
+        if d["role"] == "cloud":
+            pos[n] = CLOUDS[n][1]
         else:
-            unplaced.append(n)
-
-    # Edge nodes not covered by a slot (new rows on the sheet) are placed by a
-    # spring layout with everything else held fixed.
-    if unplaced:
-        for n in unplaced:
-            hubs = list(G.neighbors(n))
-            pos[n] = (sum(pos[h][0] for h in hubs) / len(hubs) + 0.5,
-                      sum(pos[h][1] for h in hubs) / len(hubs) - 0.5)
-        fixed = [n for n in pos if n not in unplaced]
-        pos = nx.spring_layout(G, pos=pos, fixed=fixed, k=0.8,
-                               iterations=200, seed=7)
+            pos[n] = BACKBONE_POS.get(n, (7.0, 4.0))
     return pos
+
+
+def seg_point_dist(p, a, b):
+    (px, py), (ax, ay), (bx, by) = p, a, b
+    dx, dy = bx - ax, by - ay
+    t = max(0, min(1, ((px - ax) * dx + (py - ay) * dy) / (dx * dx + dy * dy)))
+    return math.hypot(px - (ax + t * dx), py - (ay + t * dy))
+
+
+def check_visibility(G, pos):
+    """Every line must clear every node it doesn't terminate on."""
+    problems = []
+    for u, v in G.edges():
+        for n in G.nodes:
+            if n in (u, v):
+                continue
+            clear = NODE_CLEAR + (CLOUD_H / 2 if G.nodes[n]["role"] == "cloud" else 0)
+            d = seg_point_dist(pos[n], pos[u], pos[v])
+            if d < clear:
+                problems.append(f"{u}-{v} passes {d:.2f} from {n}")
+    return problems
 
 
 # Where along each backbone link to place its latency label (0.5 = middle).
@@ -244,28 +221,31 @@ def fmt_ms(ms):
 
 def draw(G, pos, out):
     bb = [n for n, d in G.nodes(data=True) if d["role"] == "backbone1"]
-    st = [n for n, d in G.nodes(data=True) if d["role"] == "edge"]
-    bb_edges = [(u, v) for u, v, d in G.edges(data=True) if d["role"] == "backbone1"]
-    st_edges = [(u, v) for u, v, d in G.edges(data=True) if d["role"] == "edge"]
+    clouds = [n for n, d in G.nodes(data=True) if d["role"] == "cloud"]
 
     fig, ax = plt.subplots(figsize=(18, 11))
     fig.patch.set_facecolor("white")
 
     # Straight lines, beneath the nodes
-    nx.draw_networkx_edges(G, pos, edgelist=st_edges, ax=ax,
-                           edge_color="#a0a0a0", width=1.0, arrows=False)
-    nx.draw_networkx_edges(G, pos, edgelist=bb_edges, ax=ax,
+    nx.draw_networkx_edges(G, pos, edgelist=list(G.edges()), ax=ax,
                            edge_color="#1f1f1f", width=2.2, arrows=False)
 
-    nx.draw_networkx_nodes(G, pos, nodelist=st, ax=ax, node_size=140,
-                           node_color="#d3d3d3", edgecolors="#8a8a8a",
-                           linewidths=0.9)
     nx.draw_networkx_nodes(G, pos, nodelist=bb, ax=ax, node_size=520,
                            node_color="white", edgecolors="#1f1f1f",
                            linewidths=2.0)
 
-    # Latency labels on Backbone1 links (no node labels)
-    for u, v in bb_edges:
+    # Clouds: rounded box with the cloud name
+    for n in clouds:
+        x, y = pos[n]
+        ax.add_patch(FancyBboxPatch(
+            (x - CLOUD_W / 2, y - CLOUD_H / 2), CLOUD_W, CLOUD_H,
+            boxstyle="round,pad=0,rounding_size=0.45", fc="white",
+            ec="#1f1f1f", lw=2.0, zorder=4))
+        ax.text(x, y, n, ha="center", va="center", fontsize=12,
+                fontweight="bold", color="#1f1f1f", zorder=5)
+
+    # Latency labels on every link (no backbone node labels)
+    for u, v in G.edges():
         ms = G.edges[u, v].get("latency_ms")
         if ms is None:
             continue
@@ -279,7 +259,7 @@ def draw(G, pos, out):
                 bbox=dict(boxstyle="round,pad=0.22", fc="white",
                           ec="#1f1f1f", lw=0.6))
 
-    ax.set_title("Backbone5 — Backbone1 + Edges "
+    ax.set_title("2022-7-TE — Backbone1 + AWS East "
                  "(estimated one-way latency)", fontsize=15, pad=14)
     fig.text(0.5, 0.02,
              f"Latency = great-circle distance × {ROUTE_FACTOR} route factor × "
@@ -287,7 +267,10 @@ def draw(G, pos, out):
              "Excludes equipment and queueing delay.",
              ha="center", fontsize=9.5, color="#555555")
     ax.axis("off")
-    ax.margins(0.05)
+    xs = [p[0] for p in pos.values()]
+    ys = [p[1] for p in pos.values()]
+    ax.set_xlim(min(xs) - 0.8, max(xs) + CLOUD_W / 2 + 0.6)
+    ax.set_ylim(min(ys) - 0.8, max(ys) + 0.8)
     plt.tight_layout(rect=(0, 0.04, 1, 1))
     plt.savefig(out, dpi=200, facecolor="white")
     print(f"Saved {out}")
@@ -299,31 +282,29 @@ def main():
     src = sys.argv[1] if len(sys.argv) > 1 else "Backbone-Split5.numbers"
     out = sys.argv[2] if len(sys.argv) > 2 else "backbone5_model.png"
 
-    backbone, edge_rows, sites = load(src)
-    G, dupes, offnet, aliased = build_graph(backbone, edge_rows, sites)
+    backbone, sites = load(src)
+    G, dupes = build_graph(backbone, sites)
 
     bb = [n for n, d in G.nodes(data=True) if d["role"] == "backbone1"]
-    st = [n for n, d in G.nodes(data=True) if d["role"] == "edge"]
+    clouds = [n for n, d in G.nodes(data=True) if d["role"] == "cloud"]
     n_bb = sum(1 for *_, d in G.edges(data=True) if d["role"] == "backbone1")
-    print(f"Backbone1 nodes: {len(bb)}   Edge nodes: {len(st)}")
-    print(f"Backbone1 links: {n_bb}   Edge links: {G.number_of_edges() - n_bb}")
+    print(f"Backbone1 nodes: {len(bb)}   Clouds: {', '.join(clouds)}")
+    print(f"Backbone1 links: {n_bb}   Cloud links: {G.number_of_edges() - n_bb}")
     print(f"Connected: {nx.is_connected(G)}")
+    core = nx.Graph(G.subgraph(bb))
+    print(f"Backbone articulation points: {list(nx.articulation_points(core)) or 'none'}")
     if dupes:
         print("Duplicate rows skipped:", ", ".join(f"{a}-{z}" for a, z in dupes))
-    if offnet:
-        print("Edges skipped (hub not on Backbone1):",
-              ", ".join(f"{a}-{z}" for a, z in offnet))
-    for s, old, new in aliased:
-        print(f"Hub renamed: {s}-{old} treated as {s}-{new}")
 
-    print("\nBackbone1 link latency (one-way, estimated)")
-    rows = sorted(((u, v, d) for u, v, d in G.edges(data=True)
-                   if d["role"] == "backbone1"),
-                  key=lambda e: -e[2].get("latency_ms", 0))
+    print("\nLink latency (one-way, estimated)")
+    rows = sorted(G.edges(data=True), key=lambda e: -e[2].get("latency_ms", 0))
     for u, v, d in rows:
-        print(f"  {u:>4} - {v:<4} {d['km']:7.0f} km  {d['latency_ms']:6.2f} ms")
+        print(f"  {u:>8} - {v:<8} {d['km']:7.0f} km  {d['latency_ms']:6.2f} ms")
 
-    draw(G, layout(G), out)
+    pos = layout(G)
+    bad = check_visibility(G, pos)
+    print("\nLine visibility:", "all clear" if not bad else "; ".join(bad))
+    draw(G, pos, out)
 
 
 if __name__ == "__main__":

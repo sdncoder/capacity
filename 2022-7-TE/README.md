@@ -1,39 +1,44 @@
-# Backbone5 — Backbone1 + Edges
+# 2022-7-TE — Backbone1 + AWS East
 
-NetworkX model of the Backbone1 core and its edges, built from the
-`BackboneSplit` sheet of `Backbone-Split5.numbers`. Backbone2 is not included.
+NetworkX model of the Backbone1 core, built from the `BackboneSplit` sheet of
+`Backbone-Split5.numbers`, with an AWS East cloud on-ramp homed to SEC1 and
+MIA. Started as a copy of `network-graphs/backbone5`; the Edge sites and
+Backbone2 are not included.
 
-![Backbone5 model](backbone5_model.png)
+![2022-7-TE model](backbone5_model.png)
 
 ## What it shows
 
 | Element | Style |
 |---|---|
-| Backbone1 sites (13) | White nodes, dark outline |
-| Edge sites (24) | Light grey, small nodes |
-| Backbone1 links (24) | Dark straight lines, labelled with estimated one-way latency |
-| Edge links (48) | Grey straight lines |
+| Backbone1 sites (13) | White nodes, dark outline, unlabelled |
+| AWS East | Rounded cloud box, labelled |
+| Backbone1 links (24) | Straight lines, labelled with estimated one-way latency |
+| AWS East links (2) | SEC1–AWS East and MIA–AWS East, straight lines, labelled with latency |
 
-Nodes are intentionally unlabelled.
+Every run checks that each line clears every node it doesn't terminate on
+(`Line visibility: all clear`).
 
 ## Latency estimate
-
-Each Backbone1 link is labelled with an estimated one-way propagation delay,
-derived from the site locations on the `Backbone1` sheet:
 
 ```
 latency_ms = great_circle_km × 1.3 (route factor) × 4.9 µs/km (fiber) / 1000
 ```
 
-This covers fiber propagation only — equipment, queueing and serialization
-delay are excluded. `ROUTE_FACTOR` and `FIBER_US_PER_KM` are set at the top of
-the script.
+Fiber propagation only; equipment, queueing and serialization delay are
+excluded. AWS East is placed at AWS us-east-1 (Ashburn, VA) for the estimate:
+SEC1–AWS East is about 2.2 ms and MIA–AWS East about 9.5 ms.
+
+## Editing
+
+- `BACKBONE_POS`: schematic positions of the Backbone1 sites
+- `CLOUDS`: cloud on-ramps (homing sites, position, coordinates)
+- `LABEL_POS`: per-link latency label positions
+- `ROUTE_FACTOR`, `FIBER_US_PER_KM`: latency model
 
 ## Data handling
 
 - Duplicate rows on the sheet (DRT–HAL1, CHI–ATL) are drawn once.
-- `ASH1` in the Edges is treated as `ASH`.
-- MXC is excluded: both of its links home to Backbone2-only sites (TC, DRT2).
 - The Location cells "SEC1aucus NJ" and "HAL1sey NJ" are read as Secaucus and
   Halsey (Newark).
 
@@ -43,6 +48,3 @@ the script.
 pip install networkx matplotlib numbers-parser
 python backbone5_model.py Backbone-Split5.numbers backbone5_model.png
 ```
-
-The script prints node and link counts, any rows it skipped or renamed, and a
-table of every Backbone1 link with its distance and latency.
