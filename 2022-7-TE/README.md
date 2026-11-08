@@ -1,8 +1,14 @@
 # 2022-7-TE — diverse TE paths for ST 2022-7 video
 
-NetworkX model of the Backbone1 core with a traffic-engineering path planner
-for SMPTE ST 2022-7 seamless-protection video. Pick an A-end and Z-end and it
-shows two diverse paths, A and B, with their latency and the A/B skew.
+NetworkX model of the Backbone1 core for SMPTE ST 2022-7 seamless-protection
+video over traffic-engineering LSPs:
+
+- **TE-LSP plan**: an optimized A/B LSP design for all 78 POP pairs
+  (156 LSPs), diverse end to end, sized to survive any double link failure.
+- **Path planner**: pick an A-end and Z-end and see two diverse paths, A and
+  B, with their latency and A/B skew.
+- **Failure analysis**: how much video the backbone carries before a double
+  link failure saturates a 100G link.
 
 
 ## Contents
@@ -24,11 +30,66 @@ shows two diverse paths, A and B, with their latency and the A/B skew.
 
 ## TE-LSP plan
 
-[`lsp-plan/`](lsp-plan/README.md) is the full ST 2022-7 LSP design: 156 LSPs
-with A and B diverse end to end (no shared link, transit POP or metro), a
-pre-signalled standby where one fits the skew budget, and paths optimized so
-**2.38 G per LSP** survives any double link failure without saturating a
-100G link (up from 1.75 G).
+Full plan, LSP table and risks: [lsp-plan/](lsp-plan/README.md).
+Per-LSP configuration: [`lsp-plan/lsp_plan.csv`](lsp-plan/lsp_plan.csv).
+
+`lsp_plan.py` designs an A and a B LSP for every POP pair (78 flows,
+156 LSPs) and checks the design against all 301 normal, single and double
+link failure cases.
+
+**Design**
+- **Diverse end to end**: A and B share no link, no transit POP and no metro
+  site (DRT/ASH, HAL1/SEC1 and DEN/DRY each count as one site).
+- **Skew**: A/B delay difference within 10 ms on the primary paths.
+- **Standby**: 34 flows get a pre-signalled standby path that shares no link
+  with A or B and stays within the skew budget. The other 44 re-signal on the
+  shortest path that avoids the other leg's links.
+- **LSP settings**: strict explicit routes, link-protect fast reroute,
+  setup/hold priority 0/0, 2.38 G reserved per LSP.
+
+**Result**
+
+| Plan | Max video per LSP | Video total | Carried (A + B) |
+|---|---:|---:|---:|
+| Original (lowest latency, shortest-path reroute, no standby) | 1.75 G | 137 G | 274 G |
+| **Optimized LSP plan** | **2.38 G** | **186 G** | **371 G** |
+
+At 2.38 G per LSP no 100G link saturates under any double link failure, a
+36% gain. Reserved bandwidth (primaries plus standby) peaks at 79 G.
+
+**Optimization**
+1. **Load spread off CHI–DEN**: among diverse pairs within the skew budget
+   and at most 3 ms slower than the fastest, the optimizer picked the
+   combination with the lowest worst-case link load. 17 of 78 flows moved off
+   their lowest-latency pair.
+2. **Reroutes stay diverse**: a failed LSP moves to its standby or to a path
+   avoiding the other leg, so when failures happen one after another no double
+   failure takes out both legs.
+3. **Faster recovery**: about half of the both-legs hits now switch to a
+   pre-signalled standby instead of waiting for a re-signal.
+
+**Risks**
+- **Simultaneous double failures**: one link on A and one on B failing at the
+  same moment still drops both legs, for some flow in 197 of 276 double
+  failures. Mapping real shared-risk groups (conduits, carriers, buildings)
+  is the main fix.
+- **Skew after a single failure**: for 40 flows a reroute can push A/B skew
+  over 10 ms (worst 33 ms on HAL1–SEC1), leaving the flow unprotected until
+  repair. Larger receiver buffers or a non-diverse reroute for metro-adjacent
+  pairs would fix it.
+- **LA–SNJ** has no diverse pair within 10 ms (14.6 ms skew).
+- **No headroom at 2.38 G**: CHI–DEN and ATL–HOU reach 100% in their worst
+  double failures, so 2.38 G is the admission limit and these two links are
+  the first to upgrade.
+- **Model assumptions**: one equal flow per POP pair and estimated latency.
+  Re-run with real flow sizes and measured latency before configuring.
+
+```bash
+python lsp_plan.py                     # table, CSV, report and maps in lsp-plan/
+python lsp_plan.py --slack-ms 5        # trade more latency for more capacity
+```
+
+![LSP plan: worst load per link under any double failure](lsp-plan/plan_worst_per_link.png)
 
 ## TE paths A and B
 
@@ -57,7 +118,7 @@ engine gives the same answer as `te_paths.py` for all 78 A/Z pairs.
 ### Command line
 
 ```bash
-pip install networkx matplotlib numbers-parser
+pip install networkx matplotlib numpy numbers-parser
 python te_paths.py --a SEC1 --z LA                 # PNG in output/
 python te_paths.py --a SE --z LA --skew-ms 5       # 2-letter labels work (DR is ambiguous)
 python te_paths.py --a SEC1 --z ASH --metro-km 25  # metro shared-risk on
@@ -77,7 +138,9 @@ python te_paths.py --html te_paths.html            # rebuild the interactive pla
 
 ## Double link failure analysis
 
-Full write-up: [failure-report/](failure-report/README.md).
+Full write-up: [failure-report/](failure-report/README.md). This analysis
+covers the original lowest-latency paths; the optimized plan above raises the
+limit from 1.75 G to 2.38 G per LSP.
 
 `te_failure.py` answers: with every link at 100G and all traffic in TE-LSPs,
 how much traffic can the network carry with no link saturating under any two
