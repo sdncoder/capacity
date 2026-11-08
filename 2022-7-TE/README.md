@@ -16,9 +16,19 @@ shows two diverse paths, A and B, with their latency and the A/B skew.
 | `backbone5_model.py` | Backbone1 NetworkX model and map |
 | `backbone5_model.png` | Backbone1 map with per-link latency |
 | `Backbone-Split5.numbers` | Source data (`BackboneSplit` and `Backbone1` sheets) |
+| `lsp_plan.py` | Optimized ST 2022-7 TE-LSP plan for all 78 POP pairs |
+| `lsp-plan/` | LSP plan: per-flow table, 156-LSP CSV, optimization summary and risks |
 | `failure-report/` | Double link failure report with summary README |
 | `output/` | Example TE path PNGs and the all-pairs CSV |
 | `images/` | README images |
+
+## TE-LSP plan
+
+[`lsp-plan/`](lsp-plan/README.md) is the full ST 2022-7 LSP design: 156 LSPs
+with A and B diverse end to end (no shared link, transit POP or metro), a
+pre-signalled standby where one fits the skew budget, and paths optimized so
+**2.38 G per LSP** survives any double link failure without saturating a
+100G link (up from 1.75 G).
 
 ## TE paths A and B
 

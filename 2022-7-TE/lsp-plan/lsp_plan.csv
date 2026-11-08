@@ -1,0 +1,157 @@
+LSP,Flow,Leg,Head-end,Tail-end,Primary path (strict ERO),Hops,Primary ms,Skew vs other leg ms,Standby path (strict ERO),Standby ms,Bandwidth Gbps,Setup/Hold priority,FRR,Diversity
+V27-ASH-ATL-A,ASH–ATL,A,ASH,ATL,ASH - ATL,1,5.43,0.01,ASH - CHI - ATL,11.85,2.38,0/0,link-protect bypass,exclude links and transit POPs of V27-ASH-ATL-B; metro SRLG
+V27-ASH-ATL-B,ASH–ATL,B,ASH,ATL,ASH - DRT - ATL,2,5.45,0.01,ASH - CHI - ATL,11.85,2.38,0/0,link-protect bypass,exclude links and transit POPs of V27-ASH-ATL-A; metro SRLG
+V27-ASH-CHI-A,ASH–CHI,A,ASH,CHI,ASH - CHI,1,5.82,5.65,ASH - DRT - SEC1 - CHI,9.5,2.38,0/0,link-protect bypass,exclude links and transit POPs of V27-ASH-CHI-B; metro SRLG
+V27-ASH-CHI-B,ASH–CHI,B,ASH,CHI,ASH - ATL - CHI,2,11.47,5.65,ASH - DRT - SEC1 - CHI,9.5,2.38,0/0,link-protect bypass,exclude links and transit POPs of V27-ASH-CHI-A; metro SRLG
+V27-ASH-DAL-A,ASH–DAL,A,ASH,DAL,ASH - ATL - HOU - DAL,3,14.92,2.83,ASH - CHI - DEN - DRY - DAL,22.03,2.38,0/0,link-protect bypass,exclude links and transit POPs of V27-ASH-DAL-B; metro SRLG
+V27-ASH-DAL-B,ASH–DAL,B,ASH,DAL,ASH - DRT - SEC1 - CHI - DAL,4,17.75,2.83,ASH - CHI - DEN - DRY - DAL,22.03,2.38,0/0,link-protect bypass,exclude links and transit POPs of V27-ASH-DAL-A; metro SRLG
+V27-ASH-DEN-A,ASH–DEN,A,ASH,DEN,ASH - CHI - DEN,2,15.23,3.63,dynamic: CSPF excluding other leg,,2.38,0/0,link-protect bypass,exclude links and transit POPs of V27-ASH-DEN-B; metro SRLG
+V27-ASH-DEN-B,ASH–DEN,B,ASH,DEN,ASH - DRT - HAL1 - DRY - DEN,4,18.86,3.63,dynamic: CSPF excluding other leg,,2.38,0/0,link-protect bypass,exclude links and transit POPs of V27-ASH-DEN-A; metro SRLG
+V27-ASH-DRT-A,ASH–DRT,A,ASH,DRT,ASH - ATL - DRT,2,10.87,4.44,dynamic: CSPF excluding other leg,,2.38,0/0,link-protect bypass,exclude links and transit POPs of V27-ASH-DRT-B; metro SRLG
+V27-ASH-DRT-B,ASH–DRT,B,ASH,DRT,ASH - CHI - SEC1 - DRT,3,15.3,4.44,dynamic: CSPF excluding other leg,,2.38,0/0,link-protect bypass,exclude links and transit POPs of V27-ASH-DRT-A; metro SRLG
+V27-ASH-DRY-A,ASH–DRY,A,ASH,DRY,ASH - DRT - HAL1 - DRY,3,18.73,2.01,ASH - ATL - CHI - DEN - DRY,21.01,2.38,0/0,link-protect bypass,exclude links and transit POPs of V27-ASH-DRY-B; metro SRLG
+V27-ASH-DRY-B,ASH–DRY,B,ASH,DRY,ASH - CHI - DAL - DRY,3,20.73,2.01,ASH - ATL - CHI - DEN - DRY,21.01,2.38,0/0,link-protect bypass,exclude links and transit POPs of V27-ASH-DRY-A; metro SRLG
+V27-ASH-HAL1-A,ASH–HAL1,A,ASH,HAL1,ASH - ATL - DRT - HAL1,3,13.03,0.12,dynamic: CSPF excluding other leg,,2.38,0/0,link-protect bypass,exclude links and transit POPs of V27-ASH-HAL1-B; metro SRLG
+V27-ASH-HAL1-B,ASH–HAL1,B,ASH,HAL1,ASH - CHI - SEC1 - HAL1,3,13.14,0.12,dynamic: CSPF excluding other leg,,2.38,0/0,link-protect bypass,exclude links and transit POPs of V27-ASH-HAL1-A; metro SRLG
+V27-ASH-HOU-A,ASH–HOU,A,ASH,HOU,ASH - ATL - HOU,2,12.62,3.75,ASH - MIA - HOU,19.46,2.38,0/0,link-protect bypass,exclude links and transit POPs of V27-ASH-HOU-B; metro SRLG
+V27-ASH-HOU-B,ASH–HOU,B,ASH,HOU,ASH - CHI - DAL - HOU,3,16.37,3.75,ASH - MIA - HOU,19.46,2.38,0/0,link-protect bypass,exclude links and transit POPs of V27-ASH-HOU-A; metro SRLG
+V27-ASH-LA-A,ASH–LA,A,ASH,LA,ASH - ATL - HOU - LA,3,26.67,2.7,ASH - DRT - HAL1 - DRY - SNJ - LA,31.42,2.38,0/0,link-protect bypass,exclude links and transit POPs of V27-ASH-LA-B; metro SRLG
+V27-ASH-LA-B,ASH–LA,B,ASH,LA,ASH - CHI - DAL - DRY - DEN - LA,5,29.37,2.7,ASH - DRT - HAL1 - DRY - SNJ - LA,31.42,2.38,0/0,link-protect bypass,exclude links and transit POPs of V27-ASH-LA-A; metro SRLG
+V27-ASH-MIA-A,ASH–MIA,A,ASH,MIA,ASH - MIA,1,9.54,2.1,dynamic: CSPF excluding other leg,,2.38,0/0,link-protect bypass,exclude links and transit POPs of V27-ASH-MIA-B; metro SRLG
+V27-ASH-MIA-B,ASH–MIA,B,ASH,MIA,ASH - ATL - MIA,2,11.65,2.1,dynamic: CSPF excluding other leg,,2.38,0/0,link-protect bypass,exclude links and transit POPs of V27-ASH-MIA-A; metro SRLG
+V27-ASH-SEC1-A,ASH–SEC1,A,ASH,SEC1,ASH - CHI - SEC1,2,13.07,0.03,dynamic: CSPF excluding other leg,,2.38,0/0,link-protect bypass,exclude links and transit POPs of V27-ASH-SEC1-B; metro SRLG
+V27-ASH-SEC1-B,ASH–SEC1,B,ASH,SEC1,ASH - ATL - DRT - SEC1,3,13.1,0.03,dynamic: CSPF excluding other leg,,2.38,0/0,link-protect bypass,exclude links and transit POPs of V27-ASH-SEC1-A; metro SRLG
+V27-ASH-SNJ-A,ASH–SNJ,A,ASH,SNJ,ASH - DRT - HAL1 - DRY - DEN - SNJ,5,28.36,1.45,ASH - CHI - DAL - DRY - SNJ,30.29,2.38,0/0,link-protect bypass,exclude links and transit POPs of V27-ASH-SNJ-B; metro SRLG
+V27-ASH-SNJ-B,ASH–SNJ,B,ASH,SNJ,ASH - ATL - HOU - LA - SNJ,4,29.8,1.45,ASH - CHI - DAL - DRY - SNJ,30.29,2.38,0/0,link-protect bypass,exclude links and transit POPs of V27-ASH-SNJ-A; metro SRLG
+V27-ATL-CHI-A,ATL–CHI,A,ATL,CHI,ATL - CHI,1,6.04,5.22,ATL - DRT - SEC1 - CHI,14.92,2.38,0/0,link-protect bypass,exclude links and transit POPs of V27-ATL-CHI-B; metro SRLG
+V27-ATL-CHI-B,ATL–CHI,B,ATL,CHI,ATL - ASH - CHI,2,11.25,5.22,ATL - DRT - SEC1 - CHI,14.92,2.38,0/0,link-protect bypass,exclude links and transit POPs of V27-ATL-CHI-A; metro SRLG
+V27-ATL-DAL-A,ATL–DAL,A,ATL,DAL,ATL - HOU - DAL,2,9.49,4.79,dynamic: CSPF excluding other leg,,2.38,0/0,link-protect bypass,exclude links and transit POPs of V27-ATL-DAL-B; metro SRLG
+V27-ATL-DAL-B,ATL–DAL,B,ATL,DAL,ATL - CHI - DAL,2,14.28,4.79,dynamic: CSPF excluding other leg,,2.38,0/0,link-protect bypass,exclude links and transit POPs of V27-ATL-DAL-A; metro SRLG
+V27-ATL-DEN-A,ATL–DEN,A,ATL,DEN,ATL - CHI - DEN,2,15.45,0.84,dynamic: CSPF excluding other leg,,2.38,0/0,link-protect bypass,exclude links and transit POPs of V27-ATL-DEN-B; metro SRLG
+V27-ATL-DEN-B,ATL–DEN,B,ATL,DEN,ATL - HOU - DAL - DRY - DEN,4,16.29,0.84,dynamic: CSPF excluding other leg,,2.38,0/0,link-protect bypass,exclude links and transit POPs of V27-ATL-DEN-A; metro SRLG
+V27-ATL-DRT-A,ATL–DRT,A,ATL,DRT,ATL - DRT,1,5.43,0.01,dynamic: CSPF excluding other leg,,2.38,0/0,link-protect bypass,exclude links and transit POPs of V27-ATL-DRT-B; metro SRLG
+V27-ATL-DRT-B,ATL–DRT,B,ATL,DRT,ATL - ASH - DRT,2,5.45,0.01,dynamic: CSPF excluding other leg,,2.38,0/0,link-protect bypass,exclude links and transit POPs of V27-ATL-DRT-A; metro SRLG
+V27-ATL-DRY-A,ATL–DRY,A,ATL,DRY,ATL - CHI - DEN - DRY,3,15.58,0.58,ATL - DRT - HAL1 - DRY,24.15,2.38,0/0,link-protect bypass,exclude links and transit POPs of V27-ATL-DRY-B; metro SRLG
+V27-ATL-DRY-B,ATL–DRY,B,ATL,DRY,ATL - HOU - DAL - DRY,3,16.16,0.58,ATL - DRT - HAL1 - DRY,24.15,2.38,0/0,link-protect bypass,exclude links and transit POPs of V27-ATL-DRY-A; metro SRLG
+V27-ATL-HAL1-A,ATL–HAL1,A,ATL,HAL1,ATL - DRT - HAL1,2,7.59,5.77,dynamic: CSPF excluding other leg,,2.38,0/0,link-protect bypass,exclude links and transit POPs of V27-ATL-HAL1-B; metro SRLG
+V27-ATL-HAL1-B,ATL–HAL1,B,ATL,HAL1,ATL - CHI - SEC1 - HAL1,3,13.36,5.77,dynamic: CSPF excluding other leg,,2.38,0/0,link-protect bypass,exclude links and transit POPs of V27-ATL-HAL1-A; metro SRLG
+V27-ATL-HOU-A,ATL–HOU,A,ATL,HOU,ATL - HOU,1,7.19,8.95,ATL - CHI - DAL - HOU,16.59,2.38,0/0,link-protect bypass,exclude links and transit POPs of V27-ATL-HOU-B; metro SRLG
+V27-ATL-HOU-B,ATL–HOU,B,ATL,HOU,ATL - MIA - HOU,2,16.13,8.95,ATL - CHI - DAL - HOU,16.59,2.38,0/0,link-protect bypass,exclude links and transit POPs of V27-ATL-HOU-A; metro SRLG
+V27-ATL-LA-A,ATL–LA,A,ATL,LA,ATL - HOU - LA,2,21.24,2.71,dynamic: CSPF excluding other leg,,2.38,0/0,link-protect bypass,exclude links and transit POPs of V27-ATL-LA-B; metro SRLG
+V27-ATL-LA-B,ATL–LA,B,ATL,LA,ATL - CHI - DEN - LA,3,23.96,2.71,dynamic: CSPF excluding other leg,,2.38,0/0,link-protect bypass,exclude links and transit POPs of V27-ATL-LA-A; metro SRLG
+V27-ATL-MIA-A,ATL–MIA,A,ATL,MIA,ATL - MIA,1,6.22,8.76,dynamic: CSPF excluding other leg,,2.38,0/0,link-protect bypass,exclude links and transit POPs of V27-ATL-MIA-B; metro SRLG
+V27-ATL-MIA-B,ATL–MIA,B,ATL,MIA,ATL - ASH - MIA,2,14.98,8.76,dynamic: CSPF excluding other leg,,2.38,0/0,link-protect bypass,exclude links and transit POPs of V27-ATL-MIA-A; metro SRLG
+V27-ATL-SEC1-A,ATL–SEC1,A,ATL,SEC1,ATL - DRT - SEC1,2,7.67,5.62,ATL - ASH - DRT - HAL1 - SEC1,7.68,2.38,0/0,link-protect bypass,exclude links and transit POPs of V27-ATL-SEC1-B; metro SRLG
+V27-ATL-SEC1-B,ATL–SEC1,B,ATL,SEC1,ATL - CHI - SEC1,2,13.29,5.62,ATL - ASH - DRT - HAL1 - SEC1,7.68,2.38,0/0,link-protect bypass,exclude links and transit POPs of V27-ATL-SEC1-A; metro SRLG
+V27-ATL-SNJ-A,ATL–SNJ,A,ATL,SNJ,ATL - HOU - LA - SNJ,3,24.37,0.58,ATL - DRT - HAL1 - DRY - SNJ,33.7,2.38,0/0,link-protect bypass,exclude links and transit POPs of V27-ATL-SNJ-B; metro SRLG
+V27-ATL-SNJ-B,ATL–SNJ,B,ATL,SNJ,ATL - CHI - DEN - SNJ,3,24.95,0.58,ATL - DRT - HAL1 - DRY - SNJ,33.7,2.38,0/0,link-protect bypass,exclude links and transit POPs of V27-ATL-SNJ-A; metro SRLG
+V27-CHI-DAL-A,CHI–DAL,A,CHI,DAL,CHI - DAL,1,8.25,7.28,CHI - DEN - DRY - DAL,16.21,2.38,0/0,link-protect bypass,exclude links and transit POPs of V27-CHI-DAL-B; metro SRLG
+V27-CHI-DAL-B,CHI–DAL,B,CHI,DAL,CHI - ATL - HOU - DAL,3,15.53,7.28,CHI - DEN - DRY - DAL,16.21,2.38,0/0,link-protect bypass,exclude links and transit POPs of V27-CHI-DAL-A; metro SRLG
+V27-CHI-DEN-A,CHI–DEN,A,CHI,DEN,CHI - DEN,1,9.41,5.63,dynamic: CSPF excluding other leg,,2.38,0/0,link-protect bypass,exclude links and transit POPs of V27-CHI-DEN-B; metro SRLG
+V27-CHI-DEN-B,CHI–DEN,B,CHI,DEN,CHI - DAL - DRY - DEN,3,15.05,5.63,dynamic: CSPF excluding other leg,,2.38,0/0,link-protect bypass,exclude links and transit POPs of V27-CHI-DEN-A; metro SRLG
+V27-CHI-DRT-A,CHI–DRT,A,CHI,DRT,CHI - SEC1 - DRT,2,9.49,1.98,CHI - ASH - DRT,5.83,2.38,0/0,link-protect bypass,exclude links and transit POPs of V27-CHI-DRT-B; metro SRLG
+V27-CHI-DRT-B,CHI–DRT,B,CHI,DRT,CHI - ATL - DRT,2,11.47,1.98,CHI - ASH - DRT,5.83,2.38,0/0,link-protect bypass,exclude links and transit POPs of V27-CHI-DRT-A; metro SRLG
+V27-CHI-DRY-A,CHI–DRY,A,CHI,DRY,CHI - DEN - DRY,2,9.54,5.37,dynamic: CSPF excluding other leg,,2.38,0/0,link-protect bypass,exclude links and transit POPs of V27-CHI-DRY-B; metro SRLG
+V27-CHI-DRY-B,CHI–DRY,B,CHI,DRY,CHI - DAL - DRY,2,14.92,5.37,dynamic: CSPF excluding other leg,,2.38,0/0,link-protect bypass,exclude links and transit POPs of V27-CHI-DRY-A; metro SRLG
+V27-CHI-HAL1-A,CHI–HAL1,A,CHI,HAL1,CHI - SEC1 - HAL1,2,7.33,0.67,dynamic: CSPF excluding other leg,,2.38,0/0,link-protect bypass,exclude links and transit POPs of V27-CHI-HAL1-B; metro SRLG
+V27-CHI-HAL1-B,CHI–HAL1,B,CHI,HAL1,CHI - ASH - DRT - HAL1,3,7.99,0.67,dynamic: CSPF excluding other leg,,2.38,0/0,link-protect bypass,exclude links and transit POPs of V27-CHI-HAL1-A; metro SRLG
+V27-CHI-HOU-A,CHI–HOU,A,CHI,HOU,CHI - DAL - HOU,2,10.55,2.67,dynamic: CSPF excluding other leg,,2.38,0/0,link-protect bypass,exclude links and transit POPs of V27-CHI-HOU-B; metro SRLG
+V27-CHI-HOU-B,CHI–HOU,B,CHI,HOU,CHI - ATL - HOU,2,13.22,2.67,dynamic: CSPF excluding other leg,,2.38,0/0,link-protect bypass,exclude links and transit POPs of V27-CHI-HOU-A; metro SRLG
+V27-CHI-LA-A,CHI–LA,A,CHI,LA,CHI - DEN - LA,2,17.92,6.69,dynamic: CSPF excluding other leg,,2.38,0/0,link-protect bypass,exclude links and transit POPs of V27-CHI-LA-B; metro SRLG
+V27-CHI-LA-B,CHI–LA,B,CHI,LA,CHI - DAL - HOU - LA,3,24.61,6.69,dynamic: CSPF excluding other leg,,2.38,0/0,link-protect bypass,exclude links and transit POPs of V27-CHI-LA-A; metro SRLG
+V27-CHI-MIA-A,CHI–MIA,A,CHI,MIA,CHI - ATL - MIA,2,12.25,3.11,CHI - DAL - HOU - MIA,20.47,2.38,0/0,link-protect bypass,exclude links and transit POPs of V27-CHI-MIA-B; metro SRLG
+V27-CHI-MIA-B,CHI–MIA,B,CHI,MIA,CHI - ASH - MIA,2,15.36,3.11,CHI - DAL - HOU - MIA,20.47,2.38,0/0,link-protect bypass,exclude links and transit POPs of V27-CHI-MIA-A; metro SRLG
+V27-CHI-SEC1-A,CHI–SEC1,A,CHI,SEC1,CHI - SEC1,1,7.25,0.81,CHI - ATL - DRT - HAL1 - SEC1,13.7,2.38,0/0,link-protect bypass,exclude links and transit POPs of V27-CHI-SEC1-B; metro SRLG
+V27-CHI-SEC1-B,CHI–SEC1,B,CHI,SEC1,CHI - ASH - DRT - SEC1,3,8.07,0.81,CHI - ATL - DRT - HAL1 - SEC1,13.7,2.38,0/0,link-protect bypass,exclude links and transit POPs of V27-CHI-SEC1-A; metro SRLG
+V27-CHI-SNJ-A,CHI–SNJ,A,CHI,SNJ,CHI - DEN - SNJ,2,18.91,8.83,dynamic: CSPF excluding other leg,,2.38,0/0,link-protect bypass,exclude links and transit POPs of V27-CHI-SNJ-B; metro SRLG
+V27-CHI-SNJ-B,CHI–SNJ,B,CHI,SNJ,CHI - DAL - HOU - LA - SNJ,4,27.74,8.83,dynamic: CSPF excluding other leg,,2.38,0/0,link-protect bypass,exclude links and transit POPs of V27-CHI-SNJ-A; metro SRLG
+V27-DAL-DEN-A,DAL–DEN,A,DAL,DEN,DAL - CHI - DEN,2,17.66,8.06,DAL - HOU - LA - DEN,24.87,2.38,0/0,link-protect bypass,exclude links and transit POPs of V27-DAL-DEN-B; metro SRLG
+V27-DAL-DEN-B,DAL–DEN,B,DAL,DEN,DAL - DRY - SNJ - DEN,3,25.72,8.06,DAL - HOU - LA - DEN,24.87,2.38,0/0,link-protect bypass,exclude links and transit POPs of V27-DAL-DEN-A; metro SRLG
+V27-DAL-DRT-A,DAL–DRT,A,DAL,DRT,DAL - CHI - ASH - DRT,3,14.08,0.84,dynamic: CSPF excluding other leg,,2.38,0/0,link-protect bypass,exclude links and transit POPs of V27-DAL-DRT-B; metro SRLG
+V27-DAL-DRT-B,DAL–DRT,B,DAL,DRT,DAL - HOU - ATL - DRT,3,14.92,0.84,dynamic: CSPF excluding other leg,,2.38,0/0,link-protect bypass,exclude links and transit POPs of V27-DAL-DRT-A; metro SRLG
+V27-DAL-DRY-A,DAL–DRY,A,DAL,DRY,DAL - HOU - LA - SNJ - DRY,4,29.05,3.08,dynamic: CSPF excluding other leg,,2.38,0/0,link-protect bypass,exclude links and transit POPs of V27-DAL-DRY-B; metro SRLG
+V27-DAL-DRY-B,DAL–DRY,B,DAL,DRY,DAL - CHI - SEC1 - HAL1 - DRY,4,32.13,3.08,dynamic: CSPF excluding other leg,,2.38,0/0,link-protect bypass,exclude links and transit POPs of V27-DAL-DRY-A; metro SRLG
+V27-DAL-HAL1-A,DAL–HAL1,A,DAL,HAL1,DAL - CHI - SEC1 - HAL1,3,15.57,1.51,DAL - DRY - HAL1,23.22,2.38,0/0,link-protect bypass,exclude links and transit POPs of V27-DAL-HAL1-B; metro SRLG
+V27-DAL-HAL1-B,DAL–HAL1,B,DAL,HAL1,DAL - HOU - ATL - DRT - HAL1,4,17.09,1.51,DAL - DRY - HAL1,23.22,2.38,0/0,link-protect bypass,exclude links and transit POPs of V27-DAL-HAL1-A; metro SRLG
+V27-DAL-HOU-A,DAL–HOU,A,DAL,HOU,DAL - CHI - ATL - HOU,3,21.47,7.89,dynamic: CSPF excluding other leg,,2.38,0/0,link-protect bypass,exclude links and transit POPs of V27-DAL-HOU-B; metro SRLG
+V27-DAL-HOU-B,DAL–HOU,B,DAL,HOU,DAL - DRY - DEN - LA - HOU,4,29.36,7.89,dynamic: CSPF excluding other leg,,2.38,0/0,link-protect bypass,exclude links and transit POPs of V27-DAL-HOU-A; metro SRLG
+V27-DAL-LA-A,DAL–LA,A,DAL,LA,DAL - HOU - LA,2,16.36,3.0,DAL - CHI - DEN - LA,26.17,2.38,0/0,link-protect bypass,exclude links and transit POPs of V27-DAL-LA-B; metro SRLG
+V27-DAL-LA-B,DAL–LA,B,DAL,LA,DAL - DRY - SNJ - LA,3,19.35,3.0,DAL - CHI - DEN - LA,26.17,2.38,0/0,link-protect bypass,exclude links and transit POPs of V27-DAL-LA-A; metro SRLG
+V27-DAL-MIA-A,DAL–MIA,A,DAL,MIA,DAL - HOU - MIA,2,12.22,8.28,dynamic: CSPF excluding other leg,,2.38,0/0,link-protect bypass,exclude links and transit POPs of V27-DAL-MIA-B; metro SRLG
+V27-DAL-MIA-B,DAL–MIA,B,DAL,MIA,DAL - CHI - ATL - MIA,3,20.5,8.28,dynamic: CSPF excluding other leg,,2.38,0/0,link-protect bypass,exclude links and transit POPs of V27-DAL-MIA-A; metro SRLG
+V27-DAL-SEC1-A,DAL–SEC1,A,DAL,SEC1,DAL - CHI - SEC1,2,15.5,1.66,DAL - DRY - HAL1 - SEC1,23.29,2.38,0/0,link-protect bypass,exclude links and transit POPs of V27-DAL-SEC1-B; metro SRLG
+V27-DAL-SEC1-B,DAL–SEC1,B,DAL,SEC1,DAL - HOU - ATL - DRT - SEC1,4,17.16,1.66,DAL - DRY - HAL1 - SEC1,23.29,2.38,0/0,link-protect bypass,exclude links and transit POPs of V27-DAL-SEC1-A; metro SRLG
+V27-DAL-SNJ-A,DAL–SNJ,A,DAL,SNJ,DAL - DRY - SNJ,2,16.22,3.27,dynamic: CSPF excluding other leg,,2.38,0/0,link-protect bypass,exclude links and transit POPs of V27-DAL-SNJ-B; metro SRLG
+V27-DAL-SNJ-B,DAL–SNJ,B,DAL,SNJ,DAL - HOU - LA - SNJ,3,19.49,3.27,dynamic: CSPF excluding other leg,,2.38,0/0,link-protect bypass,exclude links and transit POPs of V27-DAL-SNJ-A; metro SRLG
+V27-DEN-DRT-A,DEN–DRT,A,DEN,DRT,DEN - DRY - HAL1 - DRT,3,18.85,2.04,dynamic: CSPF excluding other leg,,2.38,0/0,link-protect bypass,exclude links and transit POPs of V27-DEN-DRT-B; metro SRLG
+V27-DEN-DRT-B,DEN–DRT,B,DEN,DRT,DEN - CHI - ATL - DRT,3,20.88,2.04,dynamic: CSPF excluding other leg,,2.38,0/0,link-protect bypass,exclude links and transit POPs of V27-DEN-DRT-A; metro SRLG
+V27-DEN-DRY-A,DEN–DRY,A,DEN,DRY,DEN - SNJ - DRY,2,19.05,5.27,dynamic: CSPF excluding other leg,,2.38,0/0,link-protect bypass,exclude links and transit POPs of V27-DEN-DRY-B; metro SRLG
+V27-DEN-DRY-B,DEN–DRY,B,DEN,DRY,DEN - CHI - DAL - DRY,3,24.33,5.27,dynamic: CSPF excluding other leg,,2.38,0/0,link-protect bypass,exclude links and transit POPs of V27-DEN-DRY-A; metro SRLG
+V27-DEN-HAL1-A,DEN–HAL1,A,DEN,HAL1,DEN - DRY - HAL1,2,16.68,0.05,dynamic: CSPF excluding other leg,,2.38,0/0,link-protect bypass,exclude links and transit POPs of V27-DEN-HAL1-B; metro SRLG
+V27-DEN-HAL1-B,DEN–HAL1,B,DEN,HAL1,DEN - CHI - SEC1 - HAL1,3,16.74,0.05,dynamic: CSPF excluding other leg,,2.38,0/0,link-protect bypass,exclude links and transit POPs of V27-DEN-HAL1-A; metro SRLG
+V27-DEN-HOU-A,DEN–HOU,A,DEN,HOU,DEN - LA - HOU,2,22.56,0.07,DEN - SNJ - DRY - DAL - HOU,28.03,2.38,0/0,link-protect bypass,exclude links and transit POPs of V27-DEN-HOU-B; metro SRLG
+V27-DEN-HOU-B,DEN–HOU,B,DEN,HOU,DEN - CHI - ATL - HOU,3,22.64,0.07,DEN - SNJ - DRY - DAL - HOU,28.03,2.38,0/0,link-protect bypass,exclude links and transit POPs of V27-DEN-HOU-A; metro SRLG
+V27-DEN-LA-A,DEN–LA,A,DEN,LA,DEN - LA,1,8.51,4.12,dynamic: CSPF excluding other leg,,2.38,0/0,link-protect bypass,exclude links and transit POPs of V27-DEN-LA-B; metro SRLG
+V27-DEN-LA-B,DEN–LA,B,DEN,LA,DEN - SNJ - LA,2,12.63,4.12,dynamic: CSPF excluding other leg,,2.38,0/0,link-protect bypass,exclude links and transit POPs of V27-DEN-LA-A; metro SRLG
+V27-DEN-MIA-A,DEN–MIA,A,DEN,MIA,DEN - DRY - DAL - HOU - MIA,4,19.02,2.65,dynamic: CSPF excluding other leg,,2.38,0/0,link-protect bypass,exclude links and transit POPs of V27-DEN-MIA-B; metro SRLG
+V27-DEN-MIA-B,DEN–MIA,B,DEN,MIA,DEN - CHI - ATL - MIA,3,21.66,2.65,dynamic: CSPF excluding other leg,,2.38,0/0,link-protect bypass,exclude links and transit POPs of V27-DEN-MIA-A; metro SRLG
+V27-DEN-SEC1-A,DEN–SEC1,A,DEN,SEC1,DEN - CHI - SEC1,2,16.67,0.09,dynamic: CSPF excluding other leg,,2.38,0/0,link-protect bypass,exclude links and transit POPs of V27-DEN-SEC1-B; metro SRLG
+V27-DEN-SEC1-B,DEN–SEC1,B,DEN,SEC1,DEN - DRY - HAL1 - SEC1,3,16.76,0.09,dynamic: CSPF excluding other leg,,2.38,0/0,link-protect bypass,exclude links and transit POPs of V27-DEN-SEC1-A; metro SRLG
+V27-DEN-SNJ-A,DEN–SNJ,A,DEN,SNJ,DEN - SNJ,1,9.5,2.14,DEN - DRY - SNJ,9.69,2.38,0/0,link-protect bypass,exclude links and transit POPs of V27-DEN-SNJ-B; metro SRLG
+V27-DEN-SNJ-B,DEN–SNJ,B,DEN,SNJ,DEN - LA - SNJ,2,11.64,2.14,DEN - DRY - SNJ,9.69,2.38,0/0,link-protect bypass,exclude links and transit POPs of V27-DEN-SNJ-A; metro SRLG
+V27-DRT-DRY-A,DRT–DRY,A,DRT,DRY,DRT - SEC1 - HAL1 - DRY,3,18.86,1.89,DRT - ATL - CHI - DEN - DRY,21.01,2.38,0/0,link-protect bypass,exclude links and transit POPs of V27-DRT-DRY-B; metro SRLG
+V27-DRT-DRY-B,DRT–DRY,B,DRT,DRY,DRT - ASH - CHI - DAL - DRY,4,20.75,1.89,DRT - ATL - CHI - DEN - DRY,21.01,2.38,0/0,link-protect bypass,exclude links and transit POPs of V27-DRT-DRY-A; metro SRLG
+V27-DRT-HAL1-A,DRT–HAL1,A,DRT,HAL1,DRT - HAL1,1,2.16,0.15,dynamic: CSPF excluding other leg,,2.38,0/0,link-protect bypass,exclude links and transit POPs of V27-DRT-HAL1-B; metro SRLG
+V27-DRT-HAL1-B,DRT–HAL1,B,DRT,HAL1,DRT - SEC1 - HAL1,2,2.31,0.15,dynamic: CSPF excluding other leg,,2.38,0/0,link-protect bypass,exclude links and transit POPs of V27-DRT-HAL1-A; metro SRLG
+V27-DRT-HOU-A,DRT–HOU,A,DRT,HOU,DRT - ATL - HOU,2,12.62,3.77,dynamic: CSPF excluding other leg,,2.38,0/0,link-protect bypass,exclude links and transit POPs of V27-DRT-HOU-B; metro SRLG
+V27-DRT-HOU-B,DRT–HOU,B,DRT,HOU,DRT - ASH - CHI - DAL - HOU,4,16.39,3.77,dynamic: CSPF excluding other leg,,2.38,0/0,link-protect bypass,exclude links and transit POPs of V27-DRT-HOU-A; metro SRLG
+V27-DRT-LA-A,DRT–LA,A,DRT,LA,DRT - ATL - HOU - LA,3,26.67,0.68,DRT - ASH - CHI - DEN - SNJ - LA,27.88,2.38,0/0,link-protect bypass,exclude links and transit POPs of V27-DRT-LA-B; metro SRLG
+V27-DRT-LA-B,DRT–LA,B,DRT,LA,DRT - HAL1 - DRY - DEN - LA,4,27.35,0.68,DRT - ASH - CHI - DEN - SNJ - LA,27.88,2.38,0/0,link-protect bypass,exclude links and transit POPs of V27-DRT-LA-A; metro SRLG
+V27-DRT-MIA-A,DRT–MIA,A,DRT,MIA,DRT - ASH - MIA,2,9.56,2.09,dynamic: CSPF excluding other leg,,2.38,0/0,link-protect bypass,exclude links and transit POPs of V27-DRT-MIA-B; metro SRLG
+V27-DRT-MIA-B,DRT–MIA,B,DRT,MIA,DRT - ATL - MIA,2,11.65,2.09,dynamic: CSPF excluding other leg,,2.38,0/0,link-protect bypass,exclude links and transit POPs of V27-DRT-MIA-A; metro SRLG
+V27-DRT-SEC1-A,DRT–SEC1,A,DRT,SEC1,DRT - SEC1,1,2.23,0.0,dynamic: CSPF excluding other leg,,2.38,0/0,link-protect bypass,exclude links and transit POPs of V27-DRT-SEC1-B; metro SRLG
+V27-DRT-SEC1-B,DRT–SEC1,B,DRT,SEC1,DRT - HAL1 - SEC1,2,2.23,0.0,dynamic: CSPF excluding other leg,,2.38,0/0,link-protect bypass,exclude links and transit POPs of V27-DRT-SEC1-A; metro SRLG
+V27-DRT-SNJ-A,DRT–SNJ,A,DRT,SNJ,DRT - HAL1 - DRY - SNJ,3,28.27,1.53,DRT - ASH - CHI - DEN - SNJ,24.74,2.38,0/0,link-protect bypass,exclude links and transit POPs of V27-DRT-SNJ-B; metro SRLG
+V27-DRT-SNJ-B,DRT–SNJ,B,DRT,SNJ,DRT - ATL - HOU - LA - SNJ,4,29.81,1.53,DRT - ASH - CHI - DEN - SNJ,24.74,2.38,0/0,link-protect bypass,exclude links and transit POPs of V27-DRT-SNJ-A; metro SRLG
+V27-DRY-HAL1-A,DRY–HAL1,A,DRY,HAL1,DRY - HAL1,1,16.55,0.32,DRY - DAL - HOU - ATL - DRT - HAL1,23.75,2.38,0/0,link-protect bypass,exclude links and transit POPs of V27-DRY-HAL1-B; metro SRLG
+V27-DRY-HAL1-B,DRY–HAL1,B,DRY,HAL1,DRY - DEN - CHI - SEC1 - HAL1,4,16.87,0.32,DRY - DAL - HOU - ATL - DRT - HAL1,23.75,2.38,0/0,link-protect bypass,exclude links and transit POPs of V27-DRY-HAL1-A; metro SRLG
+V27-DRY-HOU-A,DRY–HOU,A,DRY,HOU,DRY - SNJ - LA - HOU,3,26.74,1.24,DRY - HAL1 - SEC1 - CHI - DAL - HOU,34.43,2.38,0/0,link-protect bypass,exclude links and transit POPs of V27-DRY-HOU-B; metro SRLG
+V27-DRY-HOU-B,DRY–HOU,B,DRY,HOU,DRY - DEN - CHI - ASH - ATL - HOU,5,27.98,1.24,DRY - HAL1 - SEC1 - CHI - DAL - HOU,34.43,2.38,0/0,link-protect bypass,exclude links and transit POPs of V27-DRY-HOU-A; metro SRLG
+V27-DRY-LA-A,DRY–LA,A,DRY,LA,DRY - DEN - LA,2,8.64,4.05,dynamic: CSPF excluding other leg,,2.38,0/0,link-protect bypass,exclude links and transit POPs of V27-DRY-LA-B; metro SRLG
+V27-DRY-LA-B,DRY–LA,B,DRY,LA,DRY - SNJ - LA,2,12.69,4.05,dynamic: CSPF excluding other leg,,2.38,0/0,link-protect bypass,exclude links and transit POPs of V27-DRY-LA-A; metro SRLG
+V27-DRY-MIA-A,DRY–MIA,A,DRY,MIA,DRY - DAL - HOU - MIA,3,18.89,2.91,DRY - HAL1 - DRT - ASH - MIA,28.27,2.38,0/0,link-protect bypass,exclude links and transit POPs of V27-DRY-MIA-B; metro SRLG
+V27-DRY-MIA-B,DRY–MIA,B,DRY,MIA,DRY - DEN - CHI - ATL - MIA,4,21.8,2.91,DRY - HAL1 - DRT - ASH - MIA,28.27,2.38,0/0,link-protect bypass,exclude links and transit POPs of V27-DRY-MIA-A; metro SRLG
+V27-DRY-SEC1-A,DRY–SEC1,A,DRY,SEC1,DRY - HAL1 - SEC1,2,16.63,0.17,DRY - DAL - HOU - ATL - DRT - SEC1,23.83,2.38,0/0,link-protect bypass,exclude links and transit POPs of V27-DRY-SEC1-B; metro SRLG
+V27-DRY-SEC1-B,DRY–SEC1,B,DRY,SEC1,DRY - DEN - CHI - SEC1,3,16.8,0.17,DRY - DAL - HOU - ATL - DRT - SEC1,23.83,2.38,0/0,link-protect bypass,exclude links and transit POPs of V27-DRY-SEC1-A; metro SRLG
+V27-DRY-SNJ-A,DRY–SNJ,A,DRY,SNJ,DRY - SNJ,1,9.56,0.07,dynamic: CSPF excluding other leg,,2.38,0/0,link-protect bypass,exclude links and transit POPs of V27-DRY-SNJ-B; metro SRLG
+V27-DRY-SNJ-B,DRY–SNJ,B,DRY,SNJ,DRY - DEN - SNJ,2,9.63,0.07,dynamic: CSPF excluding other leg,,2.38,0/0,link-protect bypass,exclude links and transit POPs of V27-DRY-SNJ-A; metro SRLG
+V27-HAL1-HOU-A,HAL1–HOU,A,HAL1,HOU,HAL1 - DRT - ATL - HOU,3,14.78,3.1,dynamic: CSPF excluding other leg,,2.38,0/0,link-protect bypass,exclude links and transit POPs of V27-HAL1-HOU-B; metro SRLG
+V27-HAL1-HOU-B,HAL1–HOU,B,HAL1,HOU,HAL1 - SEC1 - CHI - DAL - HOU,4,17.88,3.1,dynamic: CSPF excluding other leg,,2.38,0/0,link-protect bypass,exclude links and transit POPs of V27-HAL1-HOU-A; metro SRLG
+V27-HAL1-LA-A,HAL1–LA,A,HAL1,LA,HAL1 - DRY - DEN - LA,3,25.19,3.64,HAL1 - SEC1 - CHI - DEN - SNJ - LA,29.37,2.38,0/0,link-protect bypass,exclude links and transit POPs of V27-HAL1-LA-B; metro SRLG
+V27-HAL1-LA-B,HAL1–LA,B,HAL1,LA,HAL1 - DRT - ATL - HOU - LA,4,28.84,3.64,HAL1 - SEC1 - CHI - DEN - SNJ - LA,29.37,2.38,0/0,link-protect bypass,exclude links and transit POPs of V27-HAL1-LA-A; metro SRLG
+V27-HAL1-MIA-A,HAL1–MIA,A,HAL1,MIA,HAL1 - DRT - ASH - MIA,3,11.72,7.86,dynamic: CSPF excluding other leg,,2.38,0/0,link-protect bypass,exclude links and transit POPs of V27-HAL1-MIA-B; metro SRLG
+V27-HAL1-MIA-B,HAL1–MIA,B,HAL1,MIA,HAL1 - SEC1 - CHI - ATL - MIA,4,19.58,7.86,dynamic: CSPF excluding other leg,,2.38,0/0,link-protect bypass,exclude links and transit POPs of V27-HAL1-MIA-A; metro SRLG
+V27-HAL1-SEC1-A,HAL1–SEC1,A,HAL1,SEC1,HAL1 - SEC1,1,0.07,4.32,dynamic: CSPF excluding other leg,,2.38,0/0,link-protect bypass,exclude links and transit POPs of V27-HAL1-SEC1-B; metro SRLG
+V27-HAL1-SEC1-B,HAL1–SEC1,B,HAL1,SEC1,HAL1 - DRT - SEC1,2,4.4,4.32,dynamic: CSPF excluding other leg,,2.38,0/0,link-protect bypass,exclude links and transit POPs of V27-HAL1-SEC1-A; metro SRLG
+V27-HAL1-SNJ-A,HAL1–SNJ,A,HAL1,SNJ,HAL1 - DRY - SNJ,2,26.11,5.86,HAL1 - SEC1 - CHI - DEN - SNJ,26.24,2.38,0/0,link-protect bypass,exclude links and transit POPs of V27-HAL1-SNJ-B; metro SRLG
+V27-HAL1-SNJ-B,HAL1–SNJ,B,HAL1,SNJ,HAL1 - DRT - ATL - HOU - LA - SNJ,5,31.97,5.86,HAL1 - SEC1 - CHI - DEN - SNJ,26.24,2.38,0/0,link-protect bypass,exclude links and transit POPs of V27-HAL1-SNJ-A; metro SRLG
+V27-HOU-LA-A,HOU–LA,A,HOU,LA,HOU - LA,1,14.05,3.56,dynamic: CSPF excluding other leg,,2.38,0/0,link-protect bypass,exclude links and transit POPs of V27-HOU-LA-B; metro SRLG
+V27-HOU-LA-B,HOU–LA,B,HOU,LA,HOU - DAL - DRY - DEN - LA,4,17.61,3.56,dynamic: CSPF excluding other leg,,2.38,0/0,link-protect bypass,exclude links and transit POPs of V27-HOU-LA-A; metro SRLG
+V27-HOU-MIA-A,HOU–MIA,A,HOU,MIA,HOU - MIA,1,9.92,3.49,dynamic: CSPF excluding other leg,,2.38,0/0,link-protect bypass,exclude links and transit POPs of V27-HOU-MIA-B; metro SRLG
+V27-HOU-MIA-B,HOU–MIA,B,HOU,MIA,HOU - ATL - MIA,2,13.4,3.49,dynamic: CSPF excluding other leg,,2.38,0/0,link-protect bypass,exclude links and transit POPs of V27-HOU-MIA-A; metro SRLG
+V27-HOU-SEC1-A,HOU–SEC1,A,HOU,SEC1,HOU - ATL - DRT - SEC1,3,14.85,2.95,HOU - MIA - ASH - DRT - HAL1 - SEC1,21.71,2.38,0/0,link-protect bypass,exclude links and transit POPs of V27-HOU-SEC1-B; metro SRLG
+V27-HOU-SEC1-B,HOU–SEC1,B,HOU,SEC1,HOU - DAL - CHI - SEC1,3,17.81,2.95,HOU - MIA - ASH - DRT - HAL1 - SEC1,21.71,2.38,0/0,link-protect bypass,exclude links and transit POPs of V27-HOU-SEC1-A; metro SRLG
+V27-HOU-SNJ-A,HOU–SNJ,A,HOU,SNJ,HOU - LA - SNJ,2,17.19,1.34,dynamic: CSPF excluding other leg,,2.38,0/0,link-protect bypass,exclude links and transit POPs of V27-HOU-SNJ-B; metro SRLG
+V27-HOU-SNJ-B,HOU–SNJ,B,HOU,SNJ,HOU - DAL - DRY - SNJ,3,18.53,1.34,dynamic: CSPF excluding other leg,,2.38,0/0,link-protect bypass,exclude links and transit POPs of V27-HOU-SNJ-A; metro SRLG
+V27-LA-MIA-A,LA–MIA,A,LA,MIA,LA - HOU - MIA,2,23.97,6.2,dynamic: CSPF excluding other leg,,2.38,0/0,link-protect bypass,exclude links and transit POPs of V27-LA-MIA-B; metro SRLG
+V27-LA-MIA-B,LA–MIA,B,LA,MIA,LA - DEN - CHI - ATL - MIA,4,30.17,6.2,dynamic: CSPF excluding other leg,,2.38,0/0,link-protect bypass,exclude links and transit POPs of V27-LA-MIA-A; metro SRLG
+V27-LA-SEC1-A,LA–SEC1,A,LA,SEC1,LA - DEN - CHI - SEC1,3,25.17,3.74,LA - SNJ - DRY - HAL1 - SEC1,29.31,2.38,0/0,link-protect bypass,exclude links and transit POPs of V27-LA-SEC1-B; metro SRLG
+V27-LA-SEC1-B,LA–SEC1,B,LA,SEC1,LA - HOU - ATL - DRT - SEC1,4,28.91,3.74,LA - SNJ - DRY - HAL1 - SEC1,29.31,2.38,0/0,link-protect bypass,exclude links and transit POPs of V27-LA-SEC1-A; metro SRLG
+V27-LA-SNJ-A,LA–SNJ,A,LA,SNJ,LA - SNJ,1,3.13,14.88,dynamic: CSPF excluding other leg,,2.38,0/0,link-protect bypass,exclude links and transit POPs of V27-LA-SNJ-B; metro SRLG
+V27-LA-SNJ-B,LA–SNJ,B,LA,SNJ,LA - DEN - SNJ,2,18.01,14.88,dynamic: CSPF excluding other leg,,2.38,0/0,link-protect bypass,exclude links and transit POPs of V27-LA-SNJ-A; metro SRLG
+V27-MIA-SEC1-A,MIA–SEC1,A,MIA,SEC1,MIA - ASH - DRT - SEC1,3,11.79,7.71,dynamic: CSPF excluding other leg,,2.38,0/0,link-protect bypass,exclude links and transit POPs of V27-MIA-SEC1-B; metro SRLG
+V27-MIA-SEC1-B,MIA–SEC1,B,MIA,SEC1,MIA - ATL - CHI - SEC1,3,19.5,7.71,dynamic: CSPF excluding other leg,,2.38,0/0,link-protect bypass,exclude links and transit POPs of V27-MIA-SEC1-A; metro SRLG
+V27-MIA-SNJ-A,MIA–SNJ,A,MIA,SNJ,MIA - HOU - LA - SNJ,3,27.1,4.06,dynamic: CSPF excluding other leg,,2.38,0/0,link-protect bypass,exclude links and transit POPs of V27-MIA-SNJ-B; metro SRLG
+V27-MIA-SNJ-B,MIA–SNJ,B,MIA,SNJ,MIA - ATL - CHI - DEN - SNJ,4,31.16,4.06,dynamic: CSPF excluding other leg,,2.38,0/0,link-protect bypass,exclude links and transit POPs of V27-MIA-SNJ-A; metro SRLG
+V27-SEC1-SNJ-A,SEC1–SNJ,A,SEC1,SNJ,SEC1 - HAL1 - DRY - SNJ,3,26.18,5.86,SEC1 - CHI - DEN - SNJ,26.16,2.38,0/0,link-protect bypass,exclude links and transit POPs of V27-SEC1-SNJ-B; metro SRLG
+V27-SEC1-SNJ-B,SEC1–SNJ,B,SEC1,SNJ,SEC1 - DRT - ATL - HOU - LA - SNJ,5,32.04,5.86,SEC1 - CHI - DEN - SNJ,26.16,2.38,0/0,link-protect bypass,exclude links and transit POPs of V27-SEC1-SNJ-A; metro SRLG

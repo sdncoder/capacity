@@ -1,0 +1,48 @@
+2022-7-TE — TE-LSP plan
+78 flows, 156 LSPs. Skew budget 10 ms, metro SRLG 25 km, latency slack 3 ms.
+Optimizer: 3 passes over 301 candidate A/B pairs.
+
+Max video per LSP before any 100G link saturates (normal + all single + all double failures)
+  Original plan (lowest latency, shortest-path reroute):  1.75 G   bind CHI–DEN with DAL–DRY + HOU–LA
+  New rules, lowest-latency choice:                       2.22 G
+  New plan, load-optimized:                               2.38 G   bind CHI–DEN with CHI–DAL + HOU–LA
+  => 186 G of video, 371 G carried (+36% vs original)
+  Reserved bandwidth (primaries + shared standby) peaks at 79 G on CHI–DEN
+  Worst actual load under any double failure peaks at 100 G on CHI–DEN with CHI–DAL + HOU–LA
+
+Paths changed from lowest-latency: 17 of 78 flows
+Double failures with both legs of some flow down at once: 197 of 276 (original 174)
+  Flow-hit events (flow x double failure, both legs down): 548 (original 518)
+  ... of which both legs of some flow wait for a CSPF re-signal: 139 (271 flow events); the rest switch to the pre-signalled standby
+Flows over the skew budget on primaries: LA–SNJ
+Single failures that push a flow's A/B skew over 10 ms: 119 (flow x failure) across 40 flows; worst 33.3 ms on HAL1–SEC1 with DRT–HAL1 down
+Flows with a pre-signalled standby C (link-disjoint, within skew): 34
+Flows on dynamic diverse reroute (no standby within skew): 44
+Flows whose standby shares a transit POP with A or B: 11
+
+Worst load per link at 2.38 G per LSP
+  Link           Normal    Worst  Worst when down
+  ATL–HOU         66.7G   100.0G  CHI–DEN + DRY–HAL1
+  CHI–DEN         54.8G   100.0G  CHI–DAL + HOU–LA
+  CHI–DAL         54.8G    92.9G  ATL–HOU + CHI–DEN
+  DAL–DRY         38.1G    92.9G  CHI–DEN + DRY–HAL1
+  DRY–HAL1        35.7G    90.5G  CHI–DEN + HOU–LA
+  DEN–DRY         50.0G    85.7G  CHI–DAL + HAL1–SEC1
+  ATL–CHI         54.8G    83.3G  ASH–DRT + DAL–HOU
+  ATL–DRT         52.4G    83.3G  ASH–CHI + ATL–CHI
+  HOU–LA          52.4G    83.3G  CHI–DEN + DAL–DRY
+  CHI–SEC1        50.0G    81.0G  ASH–CHI + ATL–DRT
+  DAL–HOU         54.8G    81.0G  CHI–DEN + DEN–DRY
+  ASH–CHI         38.1G    78.6G  ATL–CHI + DRT–HAL1
+  ASH–DRT         33.3G    78.6G  ATL–DRT + CHI–SEC1
+  DRT–HAL1        40.5G    78.6G  CHI–DEN + DAL–DRY
+  DRY–SNJ         28.6G    78.6G  CHI–DEN + HOU–LA
+  DRT–SEC1        35.7G    69.0G  ASH–CHI + ATL–CHI
+  HAL1–SEC1       38.1G    69.0G  ATL–DRT + DRT–SEC1
+  LA–SNJ          38.1G    66.7G  CHI–DEN + DEN–LA
+  DEN–LA          33.3G    64.3G  CHI–DEN + DRY–HAL1
+  DEN–SNJ         23.8G    61.9G  DEN–DRY + HOU–LA
+  ASH–ATL         33.3G    59.5G  ASH–CHI + ATL–DRT
+  ASH–MIA         14.3G    57.1G  ATL–MIA + HOU–MIA
+  ATL–MIA         31.0G    57.1G  ASH–MIA + HOU–MIA
+  HOU–MIA         16.7G    57.1G  ASH–MIA + ATL–MIA
