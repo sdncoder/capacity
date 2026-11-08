@@ -1,8 +1,7 @@
-# 2022-7-TE — Backbone1 + AWS East
+# 2022-7-TE — Backbone1
 
 NetworkX model of the Backbone1 core, built from the `BackboneSplit` sheet of
-`Backbone-Split5.numbers`, with an AWS East cloud on-ramp homed to SEC1 and
-MIA. Started as a copy of `network-graphs/backbone5`; the Edge sites and
+`Backbone-Split5.numbers`. Started as a copy of `network-graphs/backbone5`; the Edge sites and
 Backbone2 are not included.
 
 ![2022-7-TE model](backbone5_model.png)
@@ -12,9 +11,7 @@ Backbone2 are not included.
 | Element | Style |
 |---|---|
 | Backbone1 sites (13) | White nodes, dark outline, unlabelled |
-| AWS East | Rounded cloud box, labelled |
 | Backbone1 links (24) | Straight lines, labelled with estimated one-way latency |
-| AWS East links (2) | SEC1–AWS East and MIA–AWS East, straight lines, labelled with latency |
 
 Every run checks that each line clears every node it doesn't terminate on
 (`Line visibility: all clear`).
@@ -32,7 +29,7 @@ SEC1–AWS East is about 2.2 ms and MIA–AWS East about 9.5 ms.
 ## Editing
 
 - `BACKBONE_POS`: schematic positions of the Backbone1 sites
-- `CLOUDS`: cloud on-ramps (homing sites, position, coordinates)
+- `CLOUDS`: optional cloud on-ramps (homing sites, position, coordinates); none are defined
 - `LABEL_POS`: per-link latency label positions
 - `ROUTE_FACTOR`, `FIBER_US_PER_KM`: latency model
 

@@ -2,8 +2,8 @@
 2022-7-TE network model (NetworkX)
 
 Builds the Backbone1 core from the "BackboneSplit" sheet of
-Backbone-Split5.numbers, plus an AWS East cloud on-ramp homed to SEC1 and
-MIA. The Edges and Backbone2 columns are ignored.
+Backbone-Split5.numbers. The Edges and Backbone2 columns are ignored.
+Cloud on-ramps can be added in CLOUDS (none are defined).
 
 Each Backbone1 link carries an estimated one-way latency, derived from the
 site locations listed on the "Backbone1" sheet:
@@ -17,7 +17,7 @@ site locations listed on the "Backbone1" sheet:
 
 Styling
   - Backbone1 nodes : white, dark outline, no labels
-  - AWS East        : cloud shape, labelled
+  - Clouds (if any) : cloud shape, labelled
   - All links       : straight lines, drawn beneath the nodes
   - All links       : labelled with estimated latency (ms)
   - Every line is checked to clear every node it doesn't terminate on
@@ -90,10 +90,8 @@ BACKBONE_POS = {
 }
 
 # Cloud on-ramps: name -> (homing sites, schematic position, (lat, lon))
-# AWS East is placed at AWS us-east-1 (Ashburn, VA) for the latency estimate.
-CLOUDS = {
-    "AWS East": (("SEC1", "MIA"), (17.6, 4.0), (39.0400, -77.4900)),
-}
+# e.g. "AWS East": (("SEC1", "MIA"), (17.6, 4.0), (39.04, -77.49))
+CLOUDS = {}
 CLOUD_W, CLOUD_H = 1.9, 1.0      # cloud box size in layout units
 NODE_CLEAR = 0.45                # min gap between a line and a node it skips
 
@@ -259,7 +257,7 @@ def draw(G, pos, out):
                 bbox=dict(boxstyle="round,pad=0.22", fc="white",
                           ec="#1f1f1f", lw=0.6))
 
-    ax.set_title("2022-7-TE — Backbone1 + AWS East "
+    ax.set_title("2022-7-TE — Backbone1 "
                  "(estimated one-way latency)", fontsize=15, pad=14)
     fig.text(0.5, 0.02,
              f"Latency = great-circle distance × {ROUTE_FACTOR} route factor × "
@@ -269,7 +267,7 @@ def draw(G, pos, out):
     ax.axis("off")
     xs = [p[0] for p in pos.values()]
     ys = [p[1] for p in pos.values()]
-    ax.set_xlim(min(xs) - 0.8, max(xs) + CLOUD_W / 2 + 0.6)
+    ax.set_xlim(min(xs) - 0.8, max(xs) + 0.8)
     ax.set_ylim(min(ys) - 0.8, max(ys) + 0.8)
     plt.tight_layout(rect=(0, 0.04, 1, 1))
     plt.savefig(out, dpi=200, facecolor="white")
@@ -288,7 +286,7 @@ def main():
     bb = [n for n, d in G.nodes(data=True) if d["role"] == "backbone1"]
     clouds = [n for n, d in G.nodes(data=True) if d["role"] == "cloud"]
     n_bb = sum(1 for *_, d in G.edges(data=True) if d["role"] == "backbone1")
-    print(f"Backbone1 nodes: {len(bb)}   Clouds: {', '.join(clouds)}")
+    print(f"Backbone1 nodes: {len(bb)}   Clouds: {', '.join(clouds) or 'none'}")
     print(f"Backbone1 links: {n_bb}   Cloud links: {G.number_of_edges() - n_bb}")
     print(f"Connected: {nx.is_connected(G)}")
     core = nx.Graph(G.subgraph(bb))
